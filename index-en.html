@@ -1,891 +1,1001 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>People Analytics Guide — Formulas, KPIs & Benchmarks</title>
-  <meta name="description" content="Complete People Analytics guide: validated formulas for Excel, DAX (Power BI), SQL and Python. KPIs with SHRM, AIHR, LinkedIn Talent Trends and Michael Page benchmarks."/>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Segoe UI',system-ui,sans-serif;background:#f4f6fb;color:#1a1a2e;line-height:1.65}
-    /* ── Layout ───────────────────────────────── */
-    .app-wrapper{display:flex;min-height:100vh}
-    /* ── Sidebar ──────────────────────────────── */
-    .sidebar{width:260px;min-width:260px;background:#1a1a2e;color:#ccc;position:sticky;top:0;height:100vh;overflow-y:auto;padding:24px 0;display:flex;flex-direction:column}
-    .nav-logo{padding:0 24px 24px;border-bottom:1px solid rgba(255,255,255,.08)}
-    .nav-logo h1{font-size:1rem;font-weight:700;color:#fff;line-height:1.3}
-    .nav-logo p{font-size:.75rem;color:#888;margin-top:4px}
-    .nav-section{padding:20px 24px 8px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#555}
-    .nav-item{display:block;padding:9px 24px;color:#aaa;text-decoration:none;font-size:.85rem;transition:background .2s,color .2s;border-left:3px solid transparent}
-    .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.06);color:#fff;border-left-color:#667eea}
-    .nav-badge{display:inline-block;background:#667eea22;color:#667eea;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:600;margin-left:6px}
-    /* ── Main content ─────────────────────────── */
-    .main-content{flex:1;padding:0;overflow-x:hidden}
-    /* ── Hero ─────────────────────────────────── */
-    .hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;padding:64px 48px 56px;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;top:-40%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(102,126,234,.15) 0%,transparent 70%)}
-    .hero-badge{display:inline-block;background:rgba(102,126,234,.25);border:1px solid rgba(102,126,234,.4);color:#a5b4fc;border-radius:20px;padding:5px 14px;font-size:.78rem;font-weight:600;letter-spacing:.05em;margin-bottom:20px}
-    .hero h1{font-size:2.4rem;font-weight:800;line-height:1.2;margin-bottom:16px}
-    .hero h1 span{background:linear-gradient(90deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .hero p{font-size:1.05rem;color:#94a3b8;max-width:620px;margin-bottom:32px}
-    .hero-stats{display:flex;gap:32px;flex-wrap:wrap}
-    .hero-stat{text-align:center}
-    .hero-stat-num{font-size:2rem;font-weight:800;color:#667eea}
-    .hero-stat-label{font-size:.75rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
-    /* ── Module sections ──────────────────────── */
-    .module-section{padding:48px;border-bottom:1px solid #e8ecf4}
-    .module-header{margin-bottom:36px}
-    .module-badge{display:inline-block;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:20px;padding:5px 16px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
-    .module-header h2{font-size:1.8rem;font-weight:800;color:#1a1a2e;margin-bottom:8px}
-    .module-header p{color:#64748b;font-size:1rem}
-    /* ── Maturity levels ──────────────────────── */
-    .maturity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:24px 0}
-    .maturity-card{background:#fff;border-radius:12px;padding:20px;border:2px solid #e8ecf4;transition:border-color .2s,transform .2s}
-    .maturity-card:hover{border-color:#667eea;transform:translateY(-2px)}
-    .maturity-level{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-    .maturity-title{font-size:1rem;font-weight:700;margin-bottom:6px;color:#1a1a2e}
-    .maturity-desc{font-size:.82rem;color:#64748b}
-    /* ── Skills table ─────────────────────────── */
-    .skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:24px 0}
-    .skill-card{background:#fff;border-radius:12px;padding:20px;border:1px solid #e8ecf4}
-    .skill-card h4{font-size:.9rem;font-weight:700;margin-bottom:12px;color:#1a1a2e;display:flex;align-items:center;gap:8px}
-    .skill-card ul{list-style:none;padding:0}
-    .skill-card li{padding:4px 0;font-size:.82rem;color:#64748b;display:flex;align-items:center;gap:6px}
-    .skill-card li::before{content:'▸';color:#667eea;font-size:.7rem}
-    /* ── Benchmark table ──────────────────────── */
-    .benchmark-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.85rem}
-    .benchmark-table th{background:#1a1a2e;color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
-    .benchmark-table td{padding:10px 14px;border-bottom:1px solid #e8ecf4}
-    .benchmark-table tr:last-child td{border-bottom:none}
-    .benchmark-table tr:nth-child(even) td{background:#f8fafc}
-    .benchmark-table tr:hover td{background:#eff6ff}
-    /* ── KPI schema boxes ─────────────────────── */
-    .schema-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:24px 0}
-    .schema-box{background:#fff;border-radius:12px;padding:20px;border:1px solid #e8ecf4;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-    .schema-box h4{font-size:.88rem;font-weight:700;margin-bottom:12px;color:#667eea;display:flex;align-items:center;gap:8px}
-    .schema-box ul{list-style:none;padding:0}
-    .schema-box li{padding:3px 0;font-size:.8rem;color:#475569;display:flex;align-items:flex-start;gap:6px}
-    .schema-box li::before{content:'·';color:#667eea;font-weight:900;line-height:1.4}
-    .schema-diagram{background:#1a1a2e;border-radius:12px;padding:24px;margin:24px 0;color:#94a3b8;font-family:'Consolas','Courier New',monospace;font-size:.82rem;line-height:1.8;overflow-x:auto}
-    .schema-diagram .highlight{color:#667eea;font-weight:700}
-    /* ── Formula blocks ───────────────────────── */
-    .kpi-section{margin-bottom:48px}
-    .kpi-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #e8ecf4}
-    .kpi-number{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;flex-shrink:0}
-    .kpi-title{font-size:1.2rem;font-weight:800;color:#1a1a2e}
-    .kpi-meta{font-size:.8rem;color:#667eea;font-weight:600;margin-top:2px}
-    .tab-container{background:#fff;border-radius:12px;border:1px solid #e8ecf4;overflow:hidden;margin:16px 0}
-    .tab-header{display:flex;border-bottom:1px solid #e8ecf4;background:#f8fafc}
-    .tab-btn{padding:11px 20px;background:none;border:none;cursor:pointer;font-size:.85rem;font-weight:600;color:#64748b;transition:color .2s,border-color .2s;border-bottom:2px solid transparent;margin-bottom:-1px}
-    .tab-btn.active{color:#667eea;border-bottom-color:#667eea}
-    .tab-btn:hover:not(.active){color:#334155}
-    .tab-content{display:none;padding:20px}
-    .tab-content.active{display:block}
-    .formula-box{background:#1e2235;border-radius:8px;overflow:hidden;margin:12px 0}
-    .formula-label{background:#2d3555;color:#94a3b8;padding:6px 14px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-    .formula-box pre{padding:14px;overflow-x:auto}
-    .formula-box code{font-family:'Consolas','Courier New',monospace;font-size:.82rem;color:#e2e8f0;line-height:1.7}
-    /* ── Info / Tip boxes ─────────────────────── */
-    .info-box{background:linear-gradient(135deg,#eff6ff,#f0f9ff);border:1px solid #bfdbfe;border-radius:10px;padding:16px 20px;margin:16px 0;font-size:.88rem;color:#1e40af}
-    .tip-box{background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:10px;padding:16px 20px;margin:16px 0;font-size:.88rem;color:#166534}
-    .warning-box{background:linear-gradient(135deg,#fff7ed,#fffbeb);border:1px solid #fed7aa;border-radius:10px;padding:16px 20px;margin:16px 0;font-size:.88rem;color:#9a3412}
-    /* ── Q&A Accordion ────────────────────────── */
-    .qa-list{margin:16px 0}
-    .qa-item{background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid #e8ecf4;overflow:hidden}
-    .qa-question{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.92rem;color:#1a1a2e;user-select:none;transition:background .2s}
-    .qa-question:hover{background:#f8fafc}
-    .qa-toggle{font-size:1.2rem;color:#667eea;font-weight:700;transition:transform .3s;flex-shrink:0;margin-left:12px}
-    .qa-item.open .qa-question{background:#f8fafc}
-    .qa-answer{padding:0 20px;background:#fff;font-size:.88rem;color:#475569;line-height:1.75}
-    .qa-answer p,.qa-answer ul,.qa-answer ol,.qa-answer table{margin-bottom:12px}
-    .qa-answer ul,.qa-answer ol{padding-left:20px}
-    .qa-answer code{background:#f1f5f9;border-radius:4px;padding:1px 5px;font-family:'Consolas',monospace;font-size:.82rem;color:#667eea}
-    /* ── Pipeline ─────────────────────────────── */
-    .pipeline-diagram{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:24px 0;background:#fff;border-radius:12px;padding:24px;border:1px solid #e8ecf4}
-    .pipeline-step{text-align:center;flex:1;min-width:100px}
-    .pipeline-icon{font-size:1.8rem;margin-bottom:6px}
-    .pipeline-label{font-size:.82rem;font-weight:700;color:#1a1a2e}
-    .pipeline-sublabel{font-size:.7rem;color:#94a3b8;margin-top:2px}
-    .pipeline-arrow{color:#667eea;font-size:1.4rem;font-weight:700;flex-shrink:0}
-    /* ── Roadmap ──────────────────────────────── */
-    .roadmap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:24px 0}
-    .roadmap-phase{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e8ecf4}
-    .roadmap-phase-header{padding:14px 18px;display:flex;align-items:center;gap:10px}
-    .phase-q1{background:linear-gradient(135deg,#667eea,#764ba2)}
-    .phase-q2{background:linear-gradient(135deg,#f093fb,#f5576c)}
-    .phase-q3{background:linear-gradient(135deg,#4facfe,#00f2fe)}
-    .phase-q4{background:linear-gradient(135deg,#43e97b,#38f9d7)}
-    .roadmap-quarter{font-size:1.1rem;font-weight:800;color:#fff}
-    .roadmap-phase-title{font-size:.82rem;font-weight:600;color:rgba(255,255,255,.9)}
-    .roadmap-items{list-style:none;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
-    .roadmap-items li{font-size:.8rem;color:#475569;display:flex;align-items:flex-start;gap:6px}
-    .roadmap-items li::before{content:'→';color:#667eea;font-weight:700;flex-shrink:0}
-    /* ── Language switcher ─────────────────────── */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>People Analytics — Guia Completo | Fernando Leandro da Silva</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#1a1814;--ink2:#3d3a35;--ink3:#6b6760;
+    --paper:#faf8f4;--paper2:#f2efe9;--paper3:#e8e4dc;
+    --accent:#c4501a;--accent2:#1a6ec4;--accent3:#1a8c4e;--accent4:#7c1ac4;
+    --warn:#c4941a;--danger:#c41a1a;--success:#1a8c4e;--border:#d8d4cc;
+    --mono:'JetBrains Mono',monospace;--serif:'DM Serif Display',serif;--sans:'DM Sans',sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:15px;line-height:1.7}
+  .sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:var(--ink);color:var(--paper);overflow-y:auto;padding:32px 0;z-index:100;display:flex;flex-direction:column}
+  .sidebar-logo{padding:0 24px 24px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px}
+  .sidebar-logo .title{font-family:var(--serif);font-size:18px;color:#fff;line-height:1.3}
+  .sidebar-logo .author{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;letter-spacing:.05em;text-transform:uppercase}
+  .nav-section{padding:0 16px;margin-bottom:8px}
+  .nav-section-title{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:8px 8px 4px}
+  .nav-link{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:6px;font-size:13px;color:rgba(255,255,255,.65);text-decoration:none;transition:all .15s;cursor:pointer;border:none;background:none;width:100%;text-align:left}
+  .nav-link:hover{background:rgba(255,255,255,.08);color:#fff}
+  .nav-link.active{background:var(--accent);color:#fff}
+  .nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;flex-shrink:0}
+  .sidebar-footer{margin-top:auto;padding:16px 24px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:rgba(255,255,255,.3)}
+  .main{margin-left:240px;min-height:100vh}
+  .hero{background:var(--ink);color:#fff;padding:80px 64px 64px;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(196,80,26,.2) 0%,transparent 70%)}
+  .hero-tag{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .hero-title{font-family:var(--serif);font-size:52px;line-height:1.1;margin-bottom:20px}
+  .hero-title em{color:var(--accent);font-style:italic}
+  .hero-sub{font-size:16px;color:rgba(255,255,255,.6);max-width:540px;line-height:1.7;margin-bottom:32px}
+  .hero-meta{display:flex;gap:32px;flex-wrap:wrap}
+  .hero-meta-item .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35)}
+  .hero-meta-item .value{font-size:14px;color:rgba(255,255,255,.8);margin-top:2px}
+  .section{padding:64px;border-bottom:1px solid var(--border)}
+  .section:last-child{border-bottom:none}
+  .section-label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;font-weight:500}
+  .section-title{font-family:var(--serif);font-size:36px;color:var(--ink);margin-bottom:12px;line-height:1.2}
+  .section-intro{font-size:16px;color:var(--ink3);max-width:680px;margin-bottom:40px;line-height:1.75}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:28px}
+  .card-grid{display:grid;gap:20px}
+  .card-grid-2{grid-template-columns:1fr 1fr}
+  .card-grid-3{grid-template-columns:1fr 1fr 1fr}
+  .card-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+  .card-body{font-size:14px;color:var(--ink3);line-height:1.6}
+  .maturity-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px}
+  .maturity-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+  .maturity-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+  .maturity-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .maturity-card.l1::before{background:#94a3b8}
+  .maturity-card.l2::before{background:var(--warn)}
+  .maturity-card.l3::before{background:var(--accent2)}
+  .maturity-card.l4::before{background:var(--accent)}
+  .maturity-num{font-family:var(--serif);font-size:40px;color:var(--paper3);line-height:1;margin-bottom:8px}
+  .maturity-name{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:8px}
+  .maturity-desc{font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:12px}
+  .maturity-example{font-size:12px;color:var(--ink3);background:var(--paper2);padding:8px 12px;border-radius:6px;font-style:italic}
+  .skills-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .skill-item{display:flex;align-items:flex-start;gap:12px;padding:16px;background:var(--paper2);border-radius:10px}
+  .skill-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .skill-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+  .skill-desc{font-size:12px;color:var(--ink3);line-height:1.5}
+  .kpi-table{width:100%;border-collapse:collapse;margin-bottom:32px}
+  .kpi-table th{background:var(--ink);color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+  .kpi-table th:first-child{border-radius:8px 0 0 0}
+  .kpi-table th:last-child{border-radius:0 8px 0 0}
+  .kpi-table td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:top}
+  .kpi-table tr:last-child td{border-bottom:none}
+  .kpi-table tr:hover td{background:var(--paper2)}
+  .badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:12px;font-weight:500}
+  .badge-green{background:#dcfce7;color:#166534}
+  .badge-red{background:#fee2e2;color:#991b1b}
+  .badge-amber{background:#fef3c7;color:#92400e}
+  .badge-blue{background:#dbeafe;color:#1e40af}
+  .kpi-name{font-weight:600;color:var(--ink);margin-bottom:4px}
+  .kpi-def{font-size:12px;color:var(--ink3)}
+  .code-tabs{background:#1a1814;border-radius:12px;overflow:hidden;margin:20px 0}
+  .code-tab-bar{display:flex;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1);flex-wrap:wrap}
+  .code-tab-btn{padding:10px 18px;font-size:12px;font-family:var(--mono);color:rgba(255,255,255,.45);cursor:pointer;border:none;background:none;transition:all .15s}
+  .code-tab-btn.active{color:#fff;background:rgba(255,255,255,.1)}
+  .code-panel{display:none;padding:24px;overflow-x:auto}
+  .code-panel.active{display:block}
+  .code-panel pre{font-family:var(--mono);font-size:13px;line-height:1.7;color:#e2ddd6;white-space:pre}
+  .schema-box{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:24px 0}
+  .schema-header{background:var(--ink);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px}
+  .schema-header .table-name{font-family:var(--mono);font-size:14px;font-weight:500}
+  .schema-header .table-desc{font-size:12px;color:rgba(255,255,255,.5)}
+  .schema-cols{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0}
+  .schema-col{padding:12px 20px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
+  .col-name{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink)}
+  .col-type{font-size:11px;color:var(--accent2);font-weight:500}
+  .col-example{font-size:11px;color:var(--ink3)}
+  .formula-box{background:var(--ink);color:#fff;border-radius:10px;padding:20px 24px;font-family:var(--mono);font-size:14px;margin:16px 0;line-height:1.8}
+  .formula-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:8px;font-family:var(--sans)}
+  .formula-main{color:var(--warn);font-size:16px;font-weight:500}
+  .formula-note{font-size:12px;color:rgba(255,255,255,.5);margin-top:8px;font-family:var(--sans);font-style:italic}
+  .kpi-formula-card{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:32px}
+  .kfi-header{padding:20px 24px 0;display:flex;align-items:center;gap:12px}
+  .kfi-num{width:32px;height:32px;border-radius:8px;background:var(--ink);color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .kfi-title{font-size:17px;font-weight:600;color:var(--ink)}
+  .kfi-def{font-size:13px;color:var(--ink3);padding:8px 24px 0 68px}
+  .kfi-body{padding:16px 24px 24px}
+  .source-tag{display:inline-flex;align-items:center;gap:6px;background:var(--paper2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--ink3);margin-top:8px}
+  .source-tag a{color:var(--accent2);text-decoration:none}
+  .source-tag a:hover{text-decoration:underline}
+  .tip-box{background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:16px 20px;margin:16px 0}
+  .tip-box-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#92400e;margin-bottom:6px}
+  .tip-box p{font-size:13px;color:#78350f;line-height:1.6}
+  .route-card{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:28px}
+  .route-header{padding:24px 28px;display:flex;align-items:flex-start;gap:16px}
+  .route-badge{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:22px;color:#fff;flex-shrink:0}
+  .route-title{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:4px}
+  .route-sub{font-size:13px;color:var(--ink3)}
+  .route-body{padding:0 28px 24px}
+  .route-steps{counter-reset:step}
+  .route-step{display:flex;gap:16px;margin-bottom:20px;counter-increment:step}
+  .route-step::before{content:counter(step);width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .route-step-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px}
+  .route-step-desc{font-size:13px;color:var(--ink3);line-height:1.6}
+  .qa-grid{display:grid;gap:16px}
+  .qa-item{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .qa-question{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:16px}
+  .qa-q-text{font-size:14px;font-weight:500;color:var(--ink)}
+  .qa-metric{font-size:12px;color:var(--accent2);font-weight:500;background:#dbeafe;padding:2px 8px;border-radius:4px;white-space:nowrap}
+  .qa-answer{display:none;padding:0 20px 16px;border-top:1px solid var(--border)}
+  .qa-answer.open{display:block}
+  .qa-answer p{font-size:13px;color:var(--ink3);line-height:1.7;margin-top:12px}
+  .qa-answer .tip{background:#fef3c7;border-left:3px solid var(--warn);padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;color:#78350f;margin-top:10px}
+  .roadmap{position:relative;padding-left:40px}
+  .roadmap::before{content:'';position:absolute;left:15px;top:0;bottom:0;width:2px;background:var(--border)}
+  .roadmap-item{position:relative;margin-bottom:32px}
+  .roadmap-dot{position:absolute;left:-32px;top:4px;width:16px;height:16px;border-radius:50%;border:2px solid #fff;background:var(--ink);box-shadow:0 0 0 3px var(--border)}
+  .roadmap-dot.done{background:var(--success)}
+  .roadmap-dot.current{background:var(--accent)}
+  .roadmap-phase{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+  .roadmap-title{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:6px}
+  .roadmap-desc{font-size:13px;color:var(--ink3);line-height:1.6}
+  .roadmap-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .roadmap-tag{font-size:11px;background:var(--paper2);border:1px solid var(--border);color:var(--ink3);padding:2px 8px;border-radius:4px}
+  .divider{height:1px;background:var(--border);margin:32px 0}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+  .callout{background:var(--ink);color:#fff;border-radius:12px;padding:24px;margin:24px 0}
+  .callout-title{font-family:var(--serif);font-size:20px;margin-bottom:8px}
+  .callout p{font-size:14px;color:rgba(255,255,255,.7);line-height:1.7}
+  .tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .tag{padding:4px 12px;border-radius:6px;font-size:12px;font-weight:500}
+  .tag-orange{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+  .tag-blue{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+  .tag-green{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+  .tag-purple{background:#faf5ff;color:#7e22ce;border:1px solid #e9d5ff}
+  h3{font-size:18px;font-weight:600;color:var(--ink);margin:28px 0 12px}
+  h4{font-size:13px;font-weight:600;color:var(--ink);margin:20px 0 8px;text-transform:uppercase;letter-spacing:.06em}
+  p{margin-bottom:12px;color:var(--ink2)}
+  strong{color:var(--ink)}
+  ul,ol{padding-left:20px;color:var(--ink2)}
+  li{margin-bottom:6px;font-size:14px;line-height:1.6}
+  abbr{text-decoration:underline dotted;cursor:help;color:var(--ink)}
+  @media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.section{padding:40px 24px}.hero{padding:48px 24px}.card-grid-2,.card-grid-3,.maturity-grid,.skills-grid,.two-col{grid-template-columns:1fr}}
+
+    /* ── Language switcher ─────────────────── */
     .lang-bar{position:fixed;top:16px;right:16px;z-index:2000;display:flex;border-radius:20px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:'Segoe UI',sans-serif}
     .lang-btn{padding:7px 18px;background:#fff;color:#555;text-decoration:none;font-weight:700;font-size:.82rem;letter-spacing:.04em;transition:background .2s,color .2s;border:none}
     .lang-btn:first-child{border-right:1px solid #e0e0e0}
-    .lang-btn.lang-active{background:#667eea;color:#fff}
+    .lang-btn.lang-active{background:#2563eb;color:#fff}
     .lang-btn:not(.lang-active):hover{background:#f5f5f5}
-    /* ── Responsive ───────────────────────────── */
-    @media(max-width:768px){
-      .app-wrapper{flex-direction:column}
-      .sidebar{width:100%;height:auto;position:relative}
-      .hero{padding:32px 24px}
-      .hero h1{font-size:1.6rem}
-      .module-section{padding:32px 20px}
-      .lang-bar{top:8px;right:8px}
-    }
-  </style>
+    </style>
 </head>
 <body>
-  <div class="lang-bar">
-    <a href="index.html" class="lang-btn">PT</a>
-    <a href="index-en.html" class="lang-btn lang-active">EN</a>
+  <div class="lang-bar"><a href="index.html" class="lang-btn">PT</a><a href="index-en.html" class="lang-btn lang-active">EN</a></div>
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="title">People Analytics<br>Guia Completo</div>
+    <div class="author">Fernando Leandro da Silva</div>
   </div>
-  <div class="app-wrapper">
+  <div class="nav-section">
+    <div class="nav-section-title">Módulos</div>
+    <a class="nav-link active" href="#modulo1">O que é PA</a>
+    <a class="nav-link" href="#modulo2">KPIs Essenciais</a>
+    <a class="nav-link" href="#modulo3">Business Questions</a>
+    <a class="nav-link" href="#modulo4">Pipeline &amp; Tools</a>
+    <a class="nav-link" href="#roadmap">Roadmap</a>
+  </div>
+  <div class="nav-section" style="margin-top:8px">
+    <div class="nav-section-title">Referências</div>
+    <a class="nav-link" href="https://www.shrm.org" target="_blank">SHRM</a>
+    <a class="nav-link" href="https://www.aihr.com" target="_blank">AIHR</a>
+    <a class="nav-link" href="https://www.michaelpage.com.br" target="_blank">Michael Page</a>
+    <a class="nav-link" href="https://www.hays.com.br/guia-salarial" target="_blank">Hays Guia Salarial</a>
+    <a class="nav-link" href="https://www.roberthalfinternational.com.br" target="_blank">Robert Half</a>
+    <a class="nav-link" href="https://business.linkedin.com/talent-solutions" target="_blank">LinkedIn Talent</a>
+    <a class="nav-link" href="https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset" target="_blank">Dataset IBM Kaggle</a>
+  </div>
+  <div class="sidebar-footer">v2.1 · 2025 · Uso livre com créditos</div>
+</nav>
+<main class="main">
+<div class="hero">
+  <div class="hero-tag">Guia completo · Comunidade de RH</div>
+  <h1 class="hero-title">People<br><em>Analytics</em></h1>
+  <p class="hero-sub">Do conceito ao dashboard. Teoria, fórmulas, código e pipelines práticos para profissionais de RH que querem tomar decisões com dados.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="label">Autor</div><div class="value">Fernando Leandro da Silva</div></div>
+    <div class="hero-meta-item"><div class="label">Nível</div><div class="value">Iniciante → Intermediário</div></div>
+    <div class="hero-meta-item"><div class="label">Ferramentas</div><div class="value">Excel · SQL · Python · Power BI · DAX</div></div>
+  </div>
+</div>
 
-    <!-- ========== SIDEBAR ========== -->
-    <nav class="sidebar">
-      <div class="nav-logo">
-        <h1>People Analytics Guide</h1>
-        <p>Formulas · KPIs · Benchmarks</p>
+<section class="section" id="modulo1">
+  <div class="section-label">Module 1</div>
+  <h2 class="section-title">O que é People Analytics?</h2>
+  <p class="section-intro">People Analytics (PA) é a prática de coletar, organizar e analisar dados sobre pessoas para tomar decisões de RH mais inteligentes, estratégicas e defensáveis com números — em vez de intuição e feeling.</p>
+  <h3>Os 4 níveis de maturidade</h3>
+  <div class="maturity-grid">
+    <div class="maturity-card l1">
+      <div class="maturity-num">01</div>
+      <div class="maturity-name">Descriptive</div>
+      <div class="maturity-desc">Responde: <strong>"O que aconteceu?"</strong><br>Relatórios, headcount, tabelas simples. A maioria das empresas brasileiras está aqui.</div>
+      <div class="maturity-example">"Tivemos 18% de turnover no semestre."</div>
+    </div>
+    <div class="maturity-card l2">
+      <div class="maturity-num">02</div>
+      <div class="maturity-name">Diagnostic</div>
+      <div class="maturity-desc">Responde: <strong>"Por que aconteceu?"</strong><br>Cruzamento de dados, drill-down, correlações. Dominar este nível já te diferencia.</div>
+      <div class="maturity-example">"O turnover concentrou-se em analistas com menos de 2 anos, na área de Vendas, sob gestores com eNPS abaixo de 20."</div>
+    </div>
+    <div class="maturity-card l3">
+      <div class="maturity-num">03</div>
+      <div class="maturity-name">Predictive</div>
+      <div class="maturity-desc">Responde: <strong>"O que vai acontecer?"</strong><br>Modelos estatísticos e de machine learning. Flight risk, previsão de performance.</div>
+      <div class="maturity-example">"23 colaboradores com score de risco de saída acima de 75% nos próximos 90 dias."</div>
+    </div>
+    <div class="maturity-card l4">
+      <div class="maturity-num">04</div>
+      <div class="maturity-name">Prescriptive</div>
+      <div class="maturity-desc">Responde: <strong>"O que fazer?"</strong><br>Recomendações automatizadas baseadas nos modelos. O futuro da área — ainda raro no mercado.</div>
+      <div class="maturity-example">"Para os 23 em risco: recomendamos conversa de carreira. ROI esperado: R$ 480k em custo evitado de turnover."</div>
+    </div>
+  </div>
+  <div class="tip-box">
+    <div class="tip-box-label">💡 Estratégia de carreira</div>
+    <p>Dominar o Level 2 — Diagnóstico — já coloca você no top 20% dos profissionais de RH no Brasil. A maioria das empresas ainda está no Level 1. Não precisa ser cientista de dados para gerar valor real com PA.</p>
+  </div>
+  <h3>Skills essenciais do analista de People Analytics</h3>
+  <div class="skills-grid">
+    <div class="skill-item"><div class="skill-icon" style="background:#fef3c7">📊</div><div><div class="skill-name">Letramento em dados</div><div class="skill-desc">Entender tipos de dados, médias, medianas, distribuições. Saber o que um número significa antes de apresentar.</div></div></div>
+    <div class="skill-item"><div class="skill-icon" style="background:#dbeafe">📋</div><div><div class="skill-name">Excel / Google Sheets</div><div class="skill-desc">PROCV, tabelas dinâmicas, gráficos, fórmulas de data. Ponto de entrada obrigatório para todo analista de PA.</div></div></div>
+    <div class="skill-item"><div class="skill-icon" style="background:#dcfce7">🗄️</div><div><div class="skill-name">SQL básico</div><div class="skill-desc">SELECT, WHERE, GROUP BY, JOIN. O suficiente para extrair dados do HRIS sem depender de TI.</div></div></div>
+    <div class="skill-item"><div class="skill-icon" style="background:#fae8ff">📈</div><div><div class="skill-name">Visualização (Power BI)</div><div class="skill-desc">Construir dashboards que contam uma história. Escolher o gráfico certo para cada tipo de dado e audiência.</div></div></div>
+    <div class="skill-item"><div class="skill-icon" style="background:#fff7ed">🧠</div><div><div class="skill-name">Pensamento de negócio</div><div class="skill-desc">Traduzir perguntas do negócio em análises e resultados em decisões. É o que diferencia PA estratégico de relatório de RH.</div></div></div>
+    <div class="skill-item"><div class="skill-icon" style="background:#f0fdf4">🎯</div><div><div class="skill-name">Storytelling com dados</div><div class="skill-desc">Apresentar achados com narrativa e recomendação de ação. Dado sem contexto não move ninguém.</div></div></div>
+    <div class="skill-item"><div class="skill-icon" style="background:#ffe4e6">🔐</div><div><div class="skill-name">Ética e privacidade (LGPD)</div><div class="skill-desc">LGPD se aplica diretamente à PA. Saber o que pode e não pode ser coletado e analisado sobre colaboradores.</div></div></div>
+    <div class="skill-item"><div class="skill-icon" style="background:#f0f9ff">🐍</div><div><div class="skill-name">Python básico (diferencial)</div><div class="skill-desc">Automatizar coleta e tratamento de dados com pandas. Não é obrigatório, mas acelera tudo significativamente.</div></div></div>
+    <div class="skill-item"><div class="skill-icon" style="background:#fdf4ff">🤖</div><div><div class="skill-name">IA como copiloto</div><div class="skill-desc">Usar Claude, ChatGPT e Copilot para escrever fórmulas, debugar código, interpretar dados e simular perguntas da liderança.</div></div></div>
+  </div>
+  <div class="divider"></div>
+  <h3>Automações úteis para o dia a dia</h3>
+  <div class="card-grid card-grid-2" style="margin-top:16px">
+    <div class="card"><div class="card-title">📧 Relatórios automáticos por e-mail</div><div class="card-body">Python (schedule + smtplib) ou Power Automate. Configure uma vez: toda segunda-feira os KPIs de RH chegam na inbox da liderança automaticamente.</div></div>
+    <div class="card"><div class="card-title">🔄 Atualização automática de dashboard</div><div class="card-body">Power BI Service com gateway de dados, ou Python agendado que gera o arquivo Excel atualizado. Os dados se renovam nos horários definidos sem intervenção manual.</div></div>
+    <div class="card"><div class="card-title">🚨 Alertas automáticos de KPI crítico</div><div class="card-body">Power BI Alerts ou Python + webhook do Slack ou Teams. Quando o turnover ultrapassar X% ou o absenteísmo superar o limite, uma notificação chega sem que você precise monitorar.</div></div>
+    <div class="card"><div class="card-title">📥 Formulários → planilha → dashboard</div><div class="card-body">Qualquer formulário (Google Forms, Microsoft Forms, Typeform) pode alimentar automaticamente uma planilha ou banco de dados via Power Automate ou Zapier — que por sua vez atualiza o dashboard.</div></div>
+    <div class="card"><div class="card-title">🗂️ Consolidação automática de planilhas</div><div class="card-body">Python com pandas ou Power Query consegue ler automaticamente todas as abas ou arquivos de uma pasta e consolidar em uma única tabela — eliminando o copy-paste manual de múltiplas fontes.</div></div>
+    <div class="card"><div class="card-title">🔗 Sincronização entre sistemas</div><div class="card-body">Conectar dados de fontes diferentes — ATS, HRIS, pesquisa de clima — via API ou conectores nativos do Power BI/Python. Uma mudança em uma fonte reflete em todos os relatórios automaticamente.</div></div>
+  </div>
+</section>
+<section class="section" id="modulo2">
+  <div class="section-label">Module 2</div>
+  <h2 class="section-title">KPIs Essenciais</h2>
+  <p class="section-intro">Os indicadores <em>must-have</em> de qualquer dashboard de People Analytics — com definição, benchmarks de mercado com fonte, onde extrair os dados e fórmulas prontas nos 4 ambientes.</p>
+  <table class="kpi-table">
+    <thead><tr><th>KPI</th><th>Benchmark saudável</th><th>Alerta</th><th>Fonte dos dados</th><th style="min-width:160px">Referência do benchmark</th></tr></thead>
+    <tbody>
+      <tr><td><div class="kpi-name">Taxa de Rotatividade (Turnover Rate)</div><div class="kpi-def">% de colaboradores que saíram em relação ao headcount médio</div></td><td><span class="badge badge-green">5–10% a.a.</span></td><td><span class="badge badge-red">&gt;20%</span></td><td>fato_Historico · Tipo_Evento = Desligamento</td><td style="font-size:12px;color:var(--ink3)">SHRM · Michael Page Brasil · AIHR</td></tr>
+      <tr><td><div class="kpi-name">Rotatividade Voluntária (Voluntary Turnover)</div><div class="kpi-def">Apenas saídas por pedido do próprio colaborador — pedidos de demissão</div></td><td><span class="badge badge-green">&lt;8%</span></td><td><span class="badge badge-red">&gt;15%</span></td><td>fato_Historico · Motivo = Voluntário</td><td style="font-size:12px;color:var(--ink3)">Robert Half · Mercer Talent Trends</td></tr>
+      <tr><td><div class="kpi-name">Taxa de Retenção (Retention Rate)</div><div class="kpi-def">% de colaboradores que permaneceram na empresa no período</div></td><td><span class="badge badge-green">&gt;90%</span></td><td><span class="badge badge-red">&lt;80%</span></td><td>dim_Colaboradores · fato_Historico</td><td style="font-size:12px;color:var(--ink3)">SHRM · Deloitte Global Human Capital</td></tr>
+      <tr><td><div class="kpi-name">Tempo para Preencher Vaga (Time to Fill)</div><div class="kpi-def">Dias entre abertura da vaga e aceite da oferta pelo candidato</div></td><td><span class="badge badge-green">30–45 dias</span></td><td><span class="badge badge-red">&gt;60 dias</span></td><td>dim_Vagas · Data_Fechamento − Data_Abertura</td><td style="font-size:12px;color:var(--ink3)">LinkedIn Talent Trends · SHRM</td></tr>
+      <tr><td><div class="kpi-name">Tempo para Contratar (Time to Hire)</div><div class="kpi-def">Dias entre a candidatura do contratado e o aceite da oferta</div></td><td><span class="badge badge-green">20–30 dias</span></td><td><span class="badge badge-red">&gt;45 dias</span></td><td>dim_Vagas · ATS</td><td style="font-size:12px;color:var(--ink3)">LinkedIn Global Talent Trends 2024</td></tr>
+      <tr><td><div class="kpi-name">Taxa de Aceite de Oferta (Offer Acceptance Rate)</div><div class="kpi-def">% de ofertas de emprego aceitas em relação ao total feito</div></td><td><span class="badge badge-green">&gt;85%</span></td><td><span class="badge badge-red">&lt;70%</span></td><td>dim_Vagas · Closure_Reason</td><td style="font-size:12px;color:var(--ink3)">SHRM · Michael Page Salary Guide</td></tr>
+      <tr><td><div class="kpi-name">Taxa de Absenteísmo (Absenteeism Rate)</div><div class="kpi-def">% de colaboradores com ao menos 1 afastamento/licença em relação ao headcount ativo</div></td><td><span class="badge badge-green">&lt;3%</span></td><td><span class="badge badge-red">&gt;6%</span></td><td>fato_Historico · Tipo_Evento Afastamento/Licença</td><td style="font-size:12px;color:var(--ink3)">AIHR · Mercer · Ministério do Trabalho BR</td></tr>
+      <tr><td><div class="kpi-name">Índice de Recomendação do Colaborador (eNPS)</div><div class="kpi-def">Employee Net Promoter Score — probabilidade de recomendar a empresa</div></td><td><span class="badge badge-green">&gt;30</span></td><td><span class="badge badge-red">&lt;0</span></td><td>fato_Avaliacoes · Tipo_Avaliacao = Clima_Organizacional</td><td style="font-size:12px;color:var(--ink3)">GPTW Brasil · Bain &amp; Company · Culture Amp</td></tr>
+      <tr><td><div class="kpi-name">Custo por Contratação (Cost per Hire)</div><div class="kpi-def">Custo total do recrutamento dividido pelo nº de contratações</div></td><td><span class="badge badge-green">1–3× salário mensal</span></td><td><span class="badge badge-red">&gt;5× salário</span></td><td>Financeiro + R&amp;S</td><td style="font-size:12px;color:var(--ink3)">SHRM · Michael Page · Hays Guia Salarial</td></tr>
+      <tr><td><div class="kpi-name">Qualidade da Contratação (Quality of Hire)</div><div class="kpi-def">Média de performance e retenção dos contratados no 1º ano</div></td><td><span class="badge badge-green">&gt;75/100</span></td><td><span class="badge badge-red">&lt;50/100</span></td><td>fato_Avaliacoes + fato_Historico</td><td style="font-size:12px;color:var(--ink3)">LinkedIn Talent Solutions · SHRM</td></tr>
+    </tbody>
+  </table>
+  <div class="source-tag" style="flex-wrap:wrap;gap:8px;padding:10px 14px">
+    📎 <strong>Fontes dos benchmarks:</strong>
+    <a href="https://www.shrm.org" target="_blank">SHRM Benchmarking Survey</a> ·
+    <a href="https://business.linkedin.com/talent-solutions/global-talent-trends" target="_blank">LinkedIn Global Talent Trends 2024</a> ·
+    <a href="https://www.aihr.com" target="_blank">AIHR HR Metrics Benchmark</a> ·
+    <a href="https://www.michaelpage.com.br" target="_blank">Michael Page Salary Guide Brasil</a> ·
+    <a href="https://www.hays.com.br/guia-salarial" target="_blank">Hays Guia Salarial</a> ·
+    <a href="https://www.roberthalfinternational.com.br" target="_blank">Robert Half Pesquisa Salarial</a> ·
+    <a href="https://www.mercer.com/solutions/talent/workforce-insights/" target="_blank">Mercer Talent Trends</a> ·
+    <a href="https://www2.deloitte.com/global/en/pages/human-capital/topics/human-capital.html" target="_blank">Deloitte Global Human Capital</a> ·
+    GPTW Brasil 2024 · Lei 14.611/2023
+  </div>
+  <h3 style="margin-top:48px">Padrão de dados (placeholder) para as fórmulas</h3>
+  <p>Quatro tabelas separadas, cada uma com uma responsabilidade clara. Na prática, nenhum HRIS entrega tudo isso num export único — e tudo bem. O objetivo é ter um modelo de referência para construir o star schema no Power BI.</p>
+  <div style="background:var(--ink);border-radius:14px;padding:28px;margin:24px 0;text-align:center">
+    <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:16px">Star Schema — Power BI</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:rgba(196,80,26,.25);border:1px solid var(--accent);border-radius:8px;padding:10px 16px;font-size:12px;color:#fff;font-family:var(--mono)">dim_Colaboradores</div>
+        <div style="background:rgba(26,110,196,.2);border:1px solid var(--accent2);border-radius:8px;padding:10px 16px;font-size:12px;color:#fff;font-family:var(--mono)">dim_Vagas</div>
       </div>
-      <span class="nav-section">Modules</span>
-      <a href="#modulo1" class="nav-item">Maturity &amp; Skills <span class="nav-badge">M1</span></a>
-      <a href="#modulo2" class="nav-item">KPI Formulas <span class="nav-badge">M2</span></a>
-      <a href="#modulo3" class="nav-item">Business Questions <span class="nav-badge">M3</span></a>
-      <a href="#modulo4" class="nav-item">Pipeline &amp; Tools <span class="nav-badge">M4</span></a>
-      <a href="#roadmap" class="nav-item">Implementation Roadmap</a>
-      <span class="nav-section">KPIs</span>
-      <a href="#kpi1"  class="nav-item">1 · Turnover Rate</a>
-      <a href="#kpi2"  class="nav-item">2 · Retention Rate</a>
-      <a href="#kpi3"  class="nav-item">3 · eNPS</a>
-      <a href="#kpi4"  class="nav-item">4 · Absenteeism</a>
-      <a href="#kpi5"  class="nav-item">5 · Time to Fill</a>
-      <a href="#kpi6"  class="nav-item">6 · Offer Acceptance Rate</a>
-      <a href="#kpi7"  class="nav-item">7 · Cost per Hire</a>
-      <a href="#kpi8"  class="nav-item">8 · Quality of Hire</a>
-      <a href="#kpi9"  class="nav-item">9 · Voluntary Turnover</a>
-      <a href="#kpi10" class="nav-item">10 · Time to Hire</a>
-    </nav>
+      <div style="display:flex;flex-direction:column;align-items:center;margin:0 20px;gap:4px">
+        <div style="color:rgba(255,255,255,.3);font-size:20px">↕</div>
+        <div style="background:rgba(196,148,26,.3);border:2px solid var(--warn);border-radius:10px;padding:14px 20px;font-size:13px;color:#fff;font-weight:600;font-family:var(--mono)">fato_Eventos<br><span style="font-size:10px;font-weight:400;color:rgba(255,255,255,.5)">(Histórico)</span></div>
+        <div style="color:rgba(255,255,255,.3);font-size:20px">↕</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:rgba(26,140,78,.2);border:1px solid var(--accent3);border-radius:8px;padding:10px 16px;font-size:12px;color:#fff;font-family:var(--mono)">fato_Avaliacoes</div>
+        <div style="background:rgba(124,26,196,.2);border:1px solid var(--accent4);border-radius:8px;padding:10px 16px;font-size:12px;color:#fff;font-family:var(--mono)">dim_dCalendario</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.4)">Todas as tabelas se conectam via <span style="color:var(--warn);font-family:var(--mono)">ID_Colaborador</span> e <span style="color:var(--warn);font-family:var(--mono)">ID_Vaga</span> · <span style="color:rgba(255,255,255,.6)">dCalendario é gerada no Power BI com CALENDAR()</span></div>
+  </div>
 
-    <main class="main-content">
+  <div class="schema-box">
+    <div class="schema-header"><div><div class="table-name">👤 dim_Colaboradores <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:8px">— tabela dimensão</span></div><div class="table-desc">Dados cadastrais de cada pessoa. Uma linha por colaborador.</div></div></div>
+    <div class="schema-cols">
+      <div class="schema-col"><div class="col-name">ID_Colaborador</div><div class="col-type">🔑 Chave primária</div><div class="col-example">Ex: EMP-042</div></div>
+      <div class="schema-col"><div class="col-name">Nome</div><div class="col-type">Texto</div><div class="col-example">Ex: Ana Lima</div></div>
+      <div class="schema-col"><div class="col-name">Departamento</div><div class="col-type">Texto</div><div class="col-example">Ex: Vendas, TI, RH</div></div>
+      <div class="schema-col"><div class="col-name">Cargo</div><div class="col-type">Texto</div><div class="col-example">Ex: Analista Jr, Gerente</div></div>
+      <div class="schema-col"><div class="col-name">Data_Admissao</div><div class="col-type">Data</div><div class="col-example">Ex: 15/03/2022</div></div>
+      <div class="schema-col"><div class="col-name">Status</div><div class="col-type">Texto</div><div class="col-example">Ativo · Desligado · Licença · Afastamento</div></div>
+      <div class="schema-col"><div class="col-name">Salario_Atual</div><div class="col-type">Número (R$)</div><div class="col-example">Ex: 4500.00 — salário vigente hoje</div></div>
+      <div class="schema-col"><div class="col-name">Local_Trabalho</div><div class="col-type">Texto</div><div class="col-example">Ex: Remoto, SP Capital, Filial RJ</div></div>
+      <div class="schema-col"><div class="col-name">Gestor_ID</div><div class="col-type">Texto — self-join</div><div class="col-example">Ex: EMP-010 — liga ao próprio gestor</div></div>
+    </div>
+  </div>
 
-      <!-- ========== HERO ========== -->
-      <section class="hero">
-        <div class="hero-badge">PEOPLE ANALYTICS · PRACTICAL GUIDE</div>
-        <h1>Formulas that <span>leaders</span> actually use</h1>
-        <p>10 essential KPIs with validated formulas in Excel, DAX (Power BI), SQL and Python — benchmarks from SHRM, AIHR, LinkedIn Talent Trends and Michael Page.</p>
-        <div class="hero-stats">
-          <div class="hero-stat"><div class="hero-stat-num">10</div><div class="hero-stat-label">Core KPIs</div></div>
-          <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-label">Environments</div></div>
-          <div class="hero-stat"><div class="hero-stat-num">5</div><div class="hero-stat-label">Benchmarks</div></div>
-          <div class="hero-stat"><div class="hero-stat-num">8</div><div class="hero-stat-label">Business Q&amp;A</div></div>
+  <div class="schema-box">
+    <div class="schema-header"><div><div class="table-name">📋 dim_Vagas <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:8px">— tabela dimensão</span></div><div class="table-desc">Ciclo de vida de cada vaga — do pedido ao início do contratado.</div></div></div>
+    <div class="schema-cols">
+      <div class="schema-col"><div class="col-name">ID_Vaga</div><div class="col-type">🔑 Chave primária</div><div class="col-example">Ex: VAG-2024-018</div></div>
+      <div class="schema-col"><div class="col-name">Cargo_Vaga</div><div class="col-type">Texto</div><div class="col-example">Ex: Dev Backend Pleno</div></div>
+      <div class="schema-col"><div class="col-name">Departamento_Vaga</div><div class="col-type">Texto</div><div class="col-example">Ex: Tecnologia</div></div>
+      <div class="schema-col"><div class="col-name">Canal_Origem</div><div class="col-type">Texto</div><div class="col-example">Ex: LinkedIn, Indicação, Indeed</div></div>
+      <div class="schema-col"><div class="col-name">Data_Abertura</div><div class="col-type">Data</div><div class="col-example">Quando aprovada e divulgada</div></div>
+      <div class="schema-col"><div class="col-name">Data_Fechamento</div><div class="col-type">Data ou vazio</div><div class="col-example">Quando o candidato aceitou a oferta</div></div>
+      <div class="schema-col"><div class="col-name">Data_Candidatura_Contratado</div><div class="col-type">Data ou vazio</div><div class="col-example">Data em que o contratado entrou no funil — base para Time to Hire</div></div>
+      <div class="schema-col"><div class="col-name">Status_Vaga</div><div class="col-type">Texto</div><div class="col-example">Aberta · Fechada · Cancelada · Congelada</div></div>
+      <div class="schema-col"><div class="col-name">Closure_Reason</div><div class="col-type">Texto</div><div class="col-example">Contratação · Cancelamento · Congelamento</div></div>
+      <div class="schema-col"><div class="col-name">Oferta_Feita</div><div class="col-type">Texto (Sim/Não)</div><div class="col-example">Se chegou à etapa de proposta — base para OAR</div></div>
+      <div class="schema-col"><div class="col-name">Total_Candidaturas</div><div class="col-type">Número inteiro</div><div class="col-example">Ex: 84 — total de inscritos na vaga</div></div>
+    </div>
+    <div style="padding:10px 16px;background:#fef3c7;font-size:12px;color:#78350f;border-top:1px solid var(--border)">
+      💡 <strong>Closure_Reason é essencial:</strong> vagas canceladas ou congeladas distorcem o Time to Fill — filtre sempre por <code style="font-family:var(--mono);background:#fde68a;padding:1px 4px;border-radius:3px">Closure_Reason = "Contratação"</code>. <strong>Oferta_Aceita</strong> é derivada: se Closure_Reason = "Contratação", a oferta foi aceita.
+    </div>
+  </div>
+
+  <div class="schema-box">
+    <div class="schema-header"><div><div class="table-name">📅 fato_Historico <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:8px">— tabela fato</span></div><div class="table-desc">Linha do tempo de todos os eventos de um colaborador. Uma linha por evento.</div></div></div>
+    <div class="schema-cols">
+      <div class="schema-col"><div class="col-name">ID_Colaborador</div><div class="col-type">🔑 Chave → dim_Colaboradores</div><div class="col-example">Ex: EMP-042</div></div>
+      <div class="schema-col"><div class="col-name">Data_Evento</div><div class="col-type">Data 📅</div><div class="col-example">Ex: 01/04/2023</div></div>
+      <div class="schema-col"><div class="col-name">Tipo_Evento</div><div class="col-type">Texto (categoria)</div><div class="col-example">Admissão · Promoção · Mudança de Área · Afastamento · Licença · Desligamento</div></div>
+      <div class="schema-col"><div class="col-name">Motivo</div><div class="col-type">Texto ou vazio</div><div class="col-example">Ex: "Voluntário", "Performance", "Saúde", "Reestruturação" — essencial para Voluntary Turnover</div></div>
+      <div class="schema-col"><div class="col-name">Salario</div><div class="col-type">Número (R$) ou vazio</div><div class="col-example">Salário no momento do evento</div></div>
+      <div class="schema-col"><div class="col-name">ID_Vaga_Origem</div><div class="col-type">🔑 Chave → dim_Vagas</div><div class="col-example">Preenche só em Admissão</div></div>
+    </div>
+  </div>
+
+  <div class="schema-box">
+    <div class="schema-header"><div><div class="table-name">🎯 fato_Avaliacoes <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:8px">— tabela fato</span></div><div class="table-desc">Histórico de avaliações. Dois tipos coexistem — filtre sempre por Tipo_Avaliacao antes de calcular.</div></div></div>
+    <div style="padding:10px 20px;background:var(--paper2);border-top:1px solid var(--border);font-size:12px;font-weight:600;color:var(--ink)">Tipo A — Avaliação 180° · <span style="font-weight:400;color:var(--ink3)">autoavaliação + gestor, escala 0–5 por dimensão</span></div>
+    <div class="schema-cols">
+      <div class="schema-col"><div class="col-name">ID_Colaborador</div><div class="col-type">🔑 Chave</div></div>
+      <div class="schema-col"><div class="col-name">Ciclo_Referencia</div><div class="col-type">Texto</div><div class="col-example">Ex: "S1 2024"</div></div>
+      <div class="schema-col"><div class="col-name">Tipo_Avaliacao</div><div class="col-type">Texto</div><div class="col-example">"Avaliacao_180" — fixo para este tipo</div></div>
+      <div class="schema-col"><div class="col-name">Media_Gestor</div><div class="col-type">Número calculado (0–5)</div><div class="col-example">Média das 4 notas do gestor — base para QoH (×20 → escala 0–100)</div></div>
+    </div>
+    <div style="padding:10px 20px;background:var(--paper2);border-top:1px solid var(--border);font-size:12px;font-weight:600;color:var(--ink)">Tipo B — Clima · <span style="font-weight:400;color:var(--ink3)">colaborador avalia área e empresa</span></div>
+    <div class="schema-cols">
+      <div class="schema-col"><div class="col-name">Tipo_Avaliacao</div><div class="col-type">Texto</div><div class="col-example">"Clima_Organizacional" ou "Clima_Desligamento_Voluntario"</div></div>
+      <div class="schema-col"><div class="col-name">Nota_eNPS</div><div class="col-type">Número (0–10)</div><div class="col-example">Escala 0-10 para compatibilidade com benchmark de mercado</div></div>
+      <div class="schema-col"><div class="col-name">Nota_Empresa</div><div class="col-type">Número (0–5)</div></div>
+      <div class="schema-col"><div class="col-name">Nota_Lideranca</div><div class="col-type">Número (0–5)</div></div>
+    </div>
+    <div style="padding:12px 16px;background:#f0fdf4;font-size:12px;color:#166534;border-top:1px solid var(--border)">
+      💡 <strong>Regra de ouro: sempre filtre por Tipo_Avaliacao antes de calcular.</strong> Médias de dimensões vêm de "Avaliacao_180". eNPS vem de "Clima_Organizacional". Compare os dois tipos para identificar divergência entre quem fica e quem vai embora.
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:var(--ink3);background:var(--paper2);padding:12px 16px;border-radius:8px;margin-bottom:32px">
+    💡 <strong>Como usar:</strong> Nas fórmulas, onde aparecer <code style="font-family:var(--mono);background:var(--paper3);padding:1px 5px;border-radius:3px">dim_Colaboradores[coluna]</code>, substitua pelo nome real da sua coluna. No Excel, intervalos como <code style="font-family:var(--mono);background:var(--paper3);padding:1px 5px;border-radius:3px">B2:B1000</code> assumem linha 1 = cabeçalho. Para saídas e eventos, sempre use <strong>fato_Historico</strong> — nunca uma coluna fictícia "Data_Saida" em dim_Colaboradores.
+  </p>
+
+  <h3>KPI Formulas — nos 4 ambientes</h3>
+  <p style="font-size:13px;color:var(--ink3);margin-bottom:24px">Cada card mostra: qual tabela usar, o que a fórmula calcula e como implementar em cada ferramenta. As fórmulas estão alinhadas com o schema definido acima.</p>
+  <!-- KPI 1: TURNOVER -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">1</div><div class="kfi-title">Taxa de Rotatividade (Turnover Rate)</div></div>
+    <div class="kfi-def">Usa: <strong>fato_Historico</strong> (Tipo_Evento = "Desligamento") + <strong>dim_Colaboradores</strong> (Status) para calcular headcount médio</div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base</div>
+        <div class="formula-main">Turnover (%) = (Saídas no período ÷ Headcount médio) × 100</div>
+        <div class="formula-note">Headcount médio = (ativos no início + ativos no fim) ÷ 2 · Saídas vêm de fato_Historico, não de uma coluna "Data_Saida"</div>
+      </div>
+      <div style="background:var(--paper2);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--ink3)">
+        <strong style="color:var(--ink)">Exemplo:</strong> 200 colaboradores no início, 190 no fim (HC médio = 195), 20 saídas → turnover = 20 ÷ 195 × 100 = <strong>10,3%</strong>. Para isolar saídas voluntárias, use KPI 9.
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t1-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t1-dax')">DAX (Power BI)</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t1-sql')">SQL</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t1-py')">Python</button>
         </div>
-      </section>
+        <div class="code-panel active" id="tab-t1-xl"><pre><span style="color:#6b6760">-- Tabelas: dim_Colaboradores (col C = Status, col E = Data_Admissao)
+--          fato_Historico  (col A = ID_Colaborador, col B = Tipo_Evento, col C = Data_Evento)
+-- Crie células nomeadas: DATA_INICIO e DATA_FIM com as datas do período</span>
 
-      <!-- ========== MODULE 1: MATURITY & SKILLS ========== -->
-      <section id="modulo1" class="module-section">
-        <div class="module-header">
-          <div class="module-badge">Module 1</div>
-          <h2>Maturity &amp; Skills</h2>
-          <p>Where is your organization in its People Analytics journey?</p>
-        </div>
+<span style="color:#6b6760">-- 1) Headcount no início (admitidos antes do período)</span>
+HC_Inicio  <span style="color:#7ab8d4">=CONT.SES(dim_Colaboradores!E2:E1000,"&lt;"&amp;DATA_INICIO)</span>
 
-        <div class="maturity-grid">
-          <div class="maturity-card">
-            <div class="maturity-level" style="color:#94a3b8">Level 1</div>
-            <div class="maturity-title">Descriptive</div>
-            <div class="maturity-desc">Manual reports, spreadsheets, reactive headcount data. "What happened?"</div>
-          </div>
-          <div class="maturity-card">
-            <div class="maturity-level" style="color:#667eea">Level 2</div>
-            <div class="maturity-title">Diagnostic</div>
-            <div class="maturity-desc">Automated dashboards with KPIs, trend analysis and segmentation. "Why did it happen?"</div>
-          </div>
-          <div class="maturity-card">
-            <div class="maturity-level" style="color:#8b5cf6">Level 3</div>
-            <div class="maturity-title">Predictive</div>
-            <div class="maturity-desc">Turnover risk models, flight risk scoring, demand forecasting. "What will happen?"</div>
-          </div>
-          <div class="maturity-card">
-            <div class="maturity-level" style="color:#ec4899">Level 4</div>
-            <div class="maturity-title">Prescriptive</div>
-            <div class="maturity-desc">AI-driven recommendations, automated interventions, real-time nudges. "What should we do?"</div>
-          </div>
-        </div>
+<span style="color:#6b6760">-- 2) Saídas no período — vêm de fato_Historico, não de dim_Colaboradores</span>
+Saidas  <span style="color:#7ab8d4">=CONT.SES(fato_Historico!B2:B5000,"Desligamento",
+             fato_Historico!C2:C5000,"&gt;="&amp;DATA_INICIO,
+             fato_Historico!C2:C5000,"&lt;="&amp;DATA_FIM)</span>
 
-        <h3 style="margin:28px 0 16px;font-size:1.1rem">Core Competencies for People Analytics</h3>
-        <div class="skills-grid">
-          <div class="skill-card">
-            <h4>📊 Data &amp; Statistics</h4>
-            <ul>
-              <li>Descriptive statistics (mean, median, std dev)</li>
-              <li>Correlation and regression</li>
-              <li>Significance testing (p-value)</li>
-              <li>Predictive models (logistic regression, decision trees)</li>
-            </ul>
-          </div>
-          <div class="skill-card">
-            <h4>🛠️ Technical Tools</h4>
-            <ul>
-              <li>Excel / Google Sheets (COUNTIFS, AVERAGEIFS, Power Query)</li>
-              <li>Power BI (DAX, star schema, RLS)</li>
-              <li>Python (pandas, scikit-learn, matplotlib)</li>
-              <li>SQL (CTEs, window functions, joins)</li>
-            </ul>
-          </div>
-          <div class="skill-card">
-            <h4>🎯 Business Acumen</h4>
-            <ul>
-              <li>HR strategy and workforce planning</li>
-              <li>KPI benchmark interpretation</li>
-              <li>ROI analysis for HR programs</li>
-              <li>Data storytelling for executives</li>
-            </ul>
-          </div>
-          <div class="skill-card">
-            <h4>🔒 Ethics &amp; Privacy</h4>
-            <ul>
-              <li>GDPR / data privacy compliance</li>
-              <li>Anonymization and pseudonymization</li>
-              <li>Responsible use of predictive models</li>
-              <li>Bias detection in people data</li>
-            </ul>
-          </div>
-        </div>
+<span style="color:#6b6760">-- 3) Entradas no período (admissões novas)</span>
+Entradas  <span style="color:#7ab8d4">=CONT.SES(dim_Colaboradores!E2:E1000,"&gt;="&amp;DATA_INICIO,
+               dim_Colaboradores!E2:E1000,"&lt;="&amp;DATA_FIM)</span>
 
-        <h3 style="margin:28px 0 16px;font-size:1.1rem">Common Automations by Level</h3>
-        <table class="benchmark-table">
-          <thead><tr><th>Level</th><th>Automation</th><th>Tool</th><th>Effort</th></tr></thead>
-          <tbody>
-            <tr><td>1</td><td>Monthly headcount report</td><td>Excel + email</td><td>Low</td></tr>
-            <tr><td>2</td><td>Power BI dashboard with scheduled refresh</td><td>Power BI Service</td><td>Medium</td></tr>
-            <tr><td>2</td><td>Automated eNPS survey + export to model</td><td>Culture Amp / Google Forms</td><td>Medium</td></tr>
-            <tr><td>3</td><td>Monthly flight risk model (Python)</td><td>Python + Power BI</td><td>High</td></tr>
-            <tr><td>3</td><td>Attrition prediction with ML</td><td>Azure ML / scikit-learn</td><td>High</td></tr>
-            <tr><td>4</td><td>Real-time retention alerts to HRBP</td><td>Power Automate + Teams</td><td>Very High</td></tr>
-          </tbody>
-        </table>
-      </section>
+<span style="color:#6b6760">-- 4) Headcount no fim e média</span>
+HC_Fim    <span style="color:#7ab8d4">=HC_Inicio + Entradas - Saidas</span>
+HC_Medio  <span style="color:#7ab8d4">=(HC_Inicio + HC_Fim) / 2</span>
 
-      <!-- ========== MODULE 2: KPI FORMULAS ========== -->
-      <section id="modulo2" class="module-section">
-        <div class="module-header">
-          <div class="module-badge">Module 2</div>
-          <h2>KPI Formulas — 4 Environments</h2>
-          <p>Every formula validated against the recommended star schema data model</p>
-        </div>
+<span style="color:#6b6760">-- 5) Turnover Rate</span>
+Turnover_Rate  <span style="color:#7ab8d4">=(Saidas / HC_Medio) * 100</span></pre></div>
+        <div class="code-panel" id="tab-t1-dax"><pre><span style="color:#6b6760">-- ── Medidas de apoio (crie antes da medida principal) ──────────────────</span>
 
-        <!-- KPI Benchmark Table -->
-        <h3 style="margin-bottom:16px">KPI Overview &amp; Benchmarks</h3>
-        <table class="benchmark-table">
-          <thead>
-            <tr>
-              <th>#</th><th>KPI</th><th>Formula</th><th>Benchmark</th><th>Source</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>1</td><td>Turnover Rate</td><td>Exits / Avg HC × 100</td><td>10–15%</td><td>SHRM</td></tr>
-            <tr><td>2</td><td>Retention Rate</td><td>100 − Turnover Rate</td><td>&gt; 85%</td><td>AIHR</td></tr>
-            <tr><td>3</td><td>eNPS</td><td>(Promoters − Detractors) / Total × 100</td><td>20–40</td><td>LinkedIn Talent Trends</td></tr>
-            <tr><td>4</td><td>Absenteeism</td><td>Days absent / Working days × 100</td><td>≤ 3.5%</td><td>AIHR</td></tr>
-            <tr><td>5</td><td>Time to Fill</td><td>Req open → Offer accepted (days)</td><td>30–45 d</td><td>SHRM</td></tr>
-            <tr><td>6</td><td>Offer Acceptance Rate</td><td>Accepted / Offers made × 100</td><td>&gt; 85%</td><td>Michael Page</td></tr>
-            <tr><td>7</td><td>Cost per Hire</td><td>(Internal + External costs) / Hires</td><td>R$ 3–8 K</td><td>SHRM</td></tr>
-            <tr><td>8</td><td>Quality of Hire</td><td>(Performance + Retention) / 2</td><td>&gt; 70/100</td><td>AIHR</td></tr>
-            <tr><td>9</td><td>Voluntary Turnover</td><td>Voluntary exits / Avg HC × 100</td><td>&lt; 10%</td><td>SHRM</td></tr>
-            <tr><td>10</td><td>Time to Hire</td><td>Application → Offer accepted (days)</td><td>14–23 d</td><td>LinkedIn</td></tr>
-          </tbody>
-        </table>
-
-        <!-- Star Schema -->
-        <h3 style="margin:32px 0 16px">Data Model — Star Schema</h3>
-        <div class="schema-grid">
-          <div class="schema-box">
-            <h4>📋 dim_Colaboradores</h4>
-            <ul>
-              <li>ID_Colaborador (PK)</li><li>Nome, Departamento, Cargo</li>
-              <li>Data_Admissao, Data_Ultima_Promocao</li>
-              <li>Status (Active/Inactive)</li>
-              <li>Gestor_Direto, Salario</li>
-            </ul>
-          </div>
-          <div class="schema-box">
-            <h4>📋 dim_Vagas</h4>
-            <ul>
-              <li>ID_Vaga (PK)</li><li>Cargo, Departamento</li>
-              <li>Data_Abertura, Data_Aceite, Data_Candidatura_Contratado</li>
-              <li>Oferta_Feita (Y/N)</li>
-              <li>Motivo_Encerramento</li><li>Custo_Total_Contratacao</li>
-            </ul>
-          </div>
-          <div class="schema-box">
-            <h4>📋 fato_Historico</h4>
-            <ul>
-              <li>ID_Evento (PK)</li><li>ID_Colaborador (FK)</li>
-              <li>Data_Evento</li>
-              <li>Tipo_Evento (Hiring/Termination/Promotion/Transfer)</li>
-              <li>Motivo (Voluntary/Involuntary/Retirement…)</li>
-            </ul>
-          </div>
-          <div class="schema-box">
-            <h4>📋 fato_Avaliacoes</h4>
-            <ul>
-              <li>ID_Avaliacao (PK)</li><li>ID_Colaborador (FK)</li>
-              <li>Data_Avaliacao</li>
-              <li>Tipo_Avaliacao (Climate/180_Assessment/Post_Training)</li>
-              <li>Nota_eNPS (0–10)</li><li>Media_Gestor (0–5)</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="schema-diagram">
-          <span class="highlight">dim_dCalendario</span> ──┐<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──→ <span class="highlight">fato_Historico</span> ←── <span class="highlight">dim_Colaboradores</span><br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──→ <span class="highlight">fato_Avaliacoes</span> ←┘<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight">dim_Vagas</span> (independent fact)
-        </div>
-
-        <!-- ── KPI 1 ── -->
-        <div class="kpi-section" id="kpi1">
-          <div class="kpi-header">
-            <div class="kpi-number">1</div>
-            <div><div class="kpi-title">Turnover Rate</div><div class="kpi-meta">Benchmark: 10–15% · Source: SHRM</div></div>
-          </div>
-          <div class="info-box"><strong>Formula:</strong> Turnover Rate (%) = (Exits in period / Average HC) × 100<br>
-          <strong>Average HC</strong> = (HC at start of period + HC at end) / 2 · <strong>Source table:</strong> <code>fato_Historico</code> (event type = "Termination")</div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t1-xl')">Excel</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t1-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t1-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t1-py')">Python</button>
-            </div>
-            <div id="en-t1-xl" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">Excel — Turnover Rate</div><pre><code>=COUNTIFS(
-    History[Event_Type],  "Termination",
-    History[Event_Date], ">="&DATE(YEAR(TODAY()),1,1),
-    History[Event_Date], "<="&TODAY()
-) / ((HC_Start + HC_End) / 2) * 100</code></pre></div>
-              <p style="font-size:.82rem;color:#64748b">Name cell B2 = <em>HC_Start</em> (headcount Jan 1) and B3 = <em>HC_End</em> (current headcount). Use COUNTIFS to count only Termination events within the desired period.</p>
-            </div>
-            <div id="en-t1-dax" class="tab-content">
-              <div class="formula-box"><div class="formula-label">DAX — Power BI</div><pre><code>Exits in Period =
-CALCULATE(
-    COUNTROWS(fato_Historico),
-    fato_Historico[Event_Type] = "Termination"
+HC Início =
+<span style="color:#7ab8d4">CALCULATE</span>(
+    <span style="color:#7ab8d4">COUNTROWS</span>(dim_Colaboradores),
+    dim_Colaboradores[Data_Admissao] &lt; <span style="color:#7ab8d4">MIN</span>(dim_dCalendario[Date])
 )
 
-Average HC =
-DIVIDE(
-    CALCULATE(COUNTROWS(dim_Colaboradores), dim_Colaboradores[Status] = "Active",
-              DATEADD(dim_dCalendario[Date], -12, MONTH))
-    + CALCULATE(COUNTROWS(dim_Colaboradores), dim_Colaboradores[Status] = "Active"),
-    2
+HC Fim =
+<span style="color:#7ab8d4">CALCULATE</span>(
+    <span style="color:#7ab8d4">COUNTROWS</span>(dim_Colaboradores),
+    dim_Colaboradores[Status] <span style="color:#c4941a">IN</span> {<span style="color:#7ab87a">"Ativo"</span>, <span style="color:#7ab87a">"Licença"</span>, <span style="color:#7ab87a">"Afastamento"</span>}
 )
 
-Turnover Rate % = DIVIDE([Exits in Period], [Average HC], 0) * 100</code></pre></div>
-            </div>
-            <div id="en-t1-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>WITH exits AS (
-    SELECT COUNT(*) AS total_exits
-    FROM fato_Historico
-    WHERE Event_Type = 'Termination'
-      AND strftime('%Y', Event_Date) = strftime('%Y', 'now')
+Average HC = <span style="color:#7ab8d4">DIVIDE</span>([HC Início] + [HC Fim], 2)
+
+<span style="color:#6b6760">-- Saídas: conta eventos de Desligamento em fato_Historico</span>
+Exits in Period =
+<span style="color:#7ab8d4">CALCULATE</span>(
+    <span style="color:#7ab8d4">COUNTROWS</span>(fato_Historico),
+    fato_Historico[Tipo_Evento] = <span style="color:#7ab87a">"Desligamento"</span>
+)
+
+<span style="color:#6b6760">-- ── Medida principal ────────────────────────────────────────────────────</span>
+Turnover Rate % =
+<span style="color:#7ab8d4">DIVIDE</span>([Saídas no Período], [HC Médio], 0) * 100
+
+<span style="color:#6b6760">-- Semáforo para KPI card:</span>
+Status Turnover =
+<span style="color:#7ab8d4">VAR</span> tx = [Turnover Rate %]
+<span style="color:#7ab8d4">RETURN IF</span>(tx &gt; 20, <span style="color:#7ab87a">"🔴 Crítico"</span>,
+       <span style="color:#7ab8d4">IF</span>(tx &gt; 10, <span style="color:#7ab87a">"🟡 Atenção"</span>, <span style="color:#7ab87a">"🟢 Saudável"</span>))</pre></div>
+        <div class="code-panel" id="tab-t1-sql"><pre><span style="color:#6b6760">-- Saídas vêm de fato_Historico, não de uma coluna Data_Saida.
+-- Adapte '2024-01-01'/'2024-12-31' para o período desejado.</span>
+
+<span style="color:#c4941a">WITH</span> saidas_periodo <span style="color:#c4941a">AS</span> (
+    <span style="color:#c4941a">SELECT</span> c.Departamento, <span style="color:#7ab8d4">COUNT</span>(*) <span style="color:#c4941a">AS</span> n_saidas
+    <span style="color:#c4941a">FROM</span> fato_Historico h
+    <span style="color:#c4941a">JOIN</span> dim_Colaboradores c <span style="color:#c4941a">ON</span> h.ID_Colaborador = c.ID_Colaborador
+    <span style="color:#c4941a">WHERE</span> h.Tipo_Evento = <span style="color:#7ab87a">'Desligamento'</span>
+      <span style="color:#c4941a">AND</span> h.Data_Evento <span style="color:#c4941a">BETWEEN</span> <span style="color:#7ab87a">'2024-01-01'</span> <span style="color:#c4941a">AND</span> <span style="color:#7ab87a">'2024-12-31'</span>
+    <span style="color:#c4941a">GROUP BY</span> c.Departamento
 ),
-headcount AS (
-    SELECT COUNT(*) AS hc
-    FROM dim_Colaboradores
-    WHERE Status = 'Active'
+headcount_dept <span style="color:#c4941a">AS</span> (
+    <span style="color:#c4941a">SELECT</span> Departamento, <span style="color:#7ab8d4">COUNT</span>(*) <span style="color:#c4941a">AS</span> hc_total
+    <span style="color:#c4941a">FROM</span> dim_Colaboradores
+    <span style="color:#c4941a">GROUP BY</span> Departamento
 )
-SELECT
-    e.total_exits,
-    h.hc AS current_hc,
-    ROUND(e.total_exits * 100.0 / h.hc, 2) AS turnover_rate_pct
-FROM exits e, headcount h;</code></pre></div>
-            </div>
-            <div id="en-t1-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python — pandas</div><pre><code>import pandas as pd
-from datetime import date
+<span style="color:#c4941a">SELECT</span>
+    h.Departamento,
+    <span style="color:#7ab8d4">COALESCE</span>(s.n_saidas, 0)                           <span style="color:#c4941a">AS</span> saidas,
+    h.hc_total                                         <span style="color:#c4941a">AS</span> headcount,
+    <span style="color:#7ab8d4">ROUND</span>(<span style="color:#7ab8d4">COALESCE</span>(s.n_saidas, 0) * 100.0 / h.hc_total, 2) <span style="color:#c4941a">AS</span> turnover_pct
+<span style="color:#c4941a">FROM</span> headcount_dept h
+<span style="color:#c4941a">LEFT JOIN</span> saidas_periodo s <span style="color:#c4941a">ON</span> h.Departamento = s.Departamento
+<span style="color:#c4941a">ORDER BY</span> turnover_pct <span style="color:#c4941a">DESC</span>;</pre></div>
+        <div class="code-panel" id="tab-t1-py"><pre><span style="color:#c4941a">import</span> pandas <span style="color:#c4941a">as</span> pd
 
-col  = pd.read_excel("workforce.xlsx", sheet_name="Employees",  parse_dates=["Hire_Date"])
-hist = pd.read_excel("workforce.xlsx", sheet_name="History",    parse_dates=["Event_Date"])
+<span style="color:#6b6760"># Carrega as duas tabelas do modelo</span>
+df_colab = pd.read_excel(<span style="color:#7ab87a">"dim_Colaboradores.xlsx"</span>, parse_dates=[<span style="color:#7ab87a">"Data_Admissao"</span>])
+df_hist  = pd.read_excel(<span style="color:#7ab87a">"fato_Historico.xlsx"</span>,    parse_dates=[<span style="color:#7ab87a">"Data_Evento"</span>])
 
-year = date.today().year
-exits = hist[
-    (hist["Event_Type"] == "Termination") &
-    (hist["Event_Date"].dt.year == year)
-].shape[0]
+<span style="color:#6b6760"># Período de análise</span>
+INICIO = pd.Timestamp(<span style="color:#7ab87a">"2024-01-01"</span>)
+FIM    = pd.Timestamp(<span style="color:#7ab87a">"2024-12-31"</span>)
 
-hc_end   = (col["Status"] == "Active").sum()
-hc_start = col[col["Hire_Date"].dt.year < year].shape[0]
-avg_hc   = (hc_start + hc_end) / 2
+<span style="color:#6b6760"># Saídas: eventos de Desligamento em fato_Historico (não Data_Saida)</span>
+saidas = df_hist[
+    (df_hist[<span style="color:#7ab87a">"Tipo_Evento"</span>] == <span style="color:#7ab87a">"Desligamento"</span>) &amp;
+    (df_hist[<span style="color:#7ab87a">"Data_Evento"</span>]  &gt;= INICIO) &amp;
+    (df_hist[<span style="color:#7ab87a">"Data_Evento"</span>]  &lt;= FIM)
+]
 
-turnover = round(exits / avg_hc * 100, 2) if avg_hc > 0 else 0
-print(f"Turnover Rate: {turnover}%")</code></pre></div>
-            </div>
-          </div>
+<span style="color:#6b6760"># Headcount médio</span>
+hc_ini = (df_colab[<span style="color:#7ab87a">"Data_Admissao"</span>] &lt; INICIO).sum()
+hc_fim = df_colab[<span style="color:#7ab87a">"Status"</span>].isin([<span style="color:#7ab87a">"Ativo"</span>, <span style="color:#7ab87a">"Licença"</span>, <span style="color:#7ab87a">"Afastamento"</span>]).sum()
+hc_med = (hc_ini + hc_fim) / 2
+
+turnover = len(saidas) / hc_med * 100
+print(<span style="color:#7ab87a">f"Turnover Rate: {turnover:.1f}%"</span>)
+
+<span style="color:#6b6760"># Por departamento</span>
+saidas_dept = saidas.merge(
+    df_colab[[<span style="color:#7ab87a">"ID_Colaborador"</span>, <span style="color:#7ab87a">"Departamento"</span>]], on=<span style="color:#7ab87a">"ID_Colaborador"</span>
+)
+total_dept = df_colab.groupby(<span style="color:#7ab87a">"Departamento"</span>).size()
+turnover_dept = (
+    saidas_dept.groupby(<span style="color:#7ab87a">"Departamento"</span>).size() / total_dept * 100
+).round(1).rename(<span style="color:#7ab87a">"Turnover %"</span>)
+print(turnover_dept.sort_values(ascending=<span style="color:#c4941a">False</span>))</pre></div>
+      </div>
+    </div>
+  </div>
+  <!-- KPI 2: RETENTION -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">2</div><div class="kfi-title">Taxa de Retenção (Retention Rate)</div></div>
+    <div class="kfi-def">Usa: <strong>dim_Colaboradores</strong> · Colunas: <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Status</code>, <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Data_Admissao</code></div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base</div>
+        <div class="formula-main">Retenção (%) = ((HC_Final − Novas_Entradas) ÷ HC_Inicial) × 100</div>
+        <div class="formula-note">Exclui novas contratações para medir apenas quem "ficou" do período anterior</div>
+      </div>
+      <div style="background:var(--paper2);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--ink3)">
+        <strong style="color:var(--ink)">Por que subtrair novas entradas?</strong> Quem entrou no meio do período "infla" artificialmente a retenção. A pergunta certa é: <em>"das pessoas que já estavam, quantas ficaram?"</em>
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t2-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t2-dax')">DAX (Power BI)</button>
         </div>
+        <div class="code-panel active" id="tab-t2-xl"><pre><span style="color:#6b6760">-- dim_Colaboradores: col C = Status, col E = Data_Admissao
+-- Células nomeadas: DATA_INICIO, DATA_FIM</span>
 
-        <!-- ── KPI 2 ── -->
-        <div class="kpi-section" id="kpi2">
-          <div class="kpi-header">
-            <div class="kpi-number">2</div>
-            <div><div class="kpi-title">Retention Rate</div><div class="kpi-meta">Benchmark: &gt; 85% · Source: AIHR</div></div>
-          </div>
-          <div class="info-box"><strong>Formula:</strong> Retention Rate (%) = 100 − Turnover Rate (%)<br>
-          Or directly: (Active employees who stayed throughout the period / HC at start) × 100</div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t2-xl')">Excel</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t2-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t2-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t2-py')">Python</button>
-            </div>
-            <div id="en-t2-xl" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">Excel</div><pre><code>=100 - [Turnover_Rate_cell]
--- Or direct:
-=COUNTIFS(
-    Employees[Status],    "Active",
-    Employees[Hire_Date], "<"&DATE(YEAR(TODAY()),1,1)
-) / HC_Start * 100</code></pre></div>
-            </div>
-            <div id="en-t2-dax" class="tab-content">
-              <div class="formula-box"><div class="formula-label">DAX</div><pre><code>Retention Rate % = 100 - [Turnover Rate %]</code></pre></div>
-            </div>
-            <div id="en-t2-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>SELECT 100 - turnover_rate_pct AS retention_rate_pct
-FROM (
-    SELECT ROUND(
-        (SELECT COUNT(*) FROM fato_Historico
-         WHERE Event_Type = 'Termination'
-           AND strftime('%Y', Event_Date) = strftime('%Y','now')) * 100.0
-        / NULLIF((SELECT COUNT(*) FROM dim_Colaboradores WHERE Status='Active'), 0)
-    , 2) AS turnover_rate_pct
-);</code></pre></div>
-            </div>
-            <div id="en-t2-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python</div><pre><code>retention_rate = round(100 - turnover, 2)
-print(f"Retention Rate: {retention_rate}%")</code></pre></div>
-            </div>
-          </div>
-        </div>
+<span style="color:#6b6760">-- HC inicial: admitidos antes do período</span>
+HC_Inicio  <span style="color:#7ab8d4">=CONT.SES(dim_Colaboradores!E2:E1000,"&lt;"&amp;DATA_INICIO)</span>
 
-        <!-- ── KPI 3 ── -->
-        <div class="kpi-section" id="kpi3">
-          <div class="kpi-header">
-            <div class="kpi-number">3</div>
-            <div><div class="kpi-title">eNPS (Employee Net Promoter Score)</div><div class="kpi-meta">Benchmark: 20–40 · Source: LinkedIn Talent Trends</div></div>
-          </div>
-          <div class="info-box">
-            <strong>Formula:</strong> eNPS = ((Promoters − Detractors) / Total respondents) × 100<br>
-            <strong>Scale:</strong> Promoters = 9–10 · Neutrals = 7–8 · Detractors = 0–6<br>
-            <strong>Range:</strong> −100 to +100 (not a percentage — no % symbol)
-          </div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t3-xl')">Excel</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t3-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t3-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t3-py')">Python</button>
-            </div>
-            <div id="en-t3-xl" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">Excel</div><pre><code>=(COUNTIFS(Survey[Type],"Climate",Survey[eNPS_Score],">="&9)
- -COUNTIFS(Survey[Type],"Climate",Survey[eNPS_Score],"<="&6))
-/ COUNTIF(Survey[Type],"Climate")
-* 100</code></pre></div>
-            </div>
-            <div id="en-t3-dax" class="tab-content">
-              <div class="formula-box"><div class="formula-label">DAX — correct pattern (FILTER, not CALCULATE on VAR)</div><pre><code>eNPS =
-VAR base  = FILTER(fato_Avaliacoes, fato_Avaliacoes[Survey_Type] = "Climate")
-VAR total = COUNTROWS(base)
-VAR prom  = COUNTROWS(FILTER(base, fato_Avaliacoes[eNPS_Score] >= 9))
-VAR det   = COUNTROWS(FILTER(base, fato_Avaliacoes[eNPS_Score] <= 6))
-RETURN DIVIDE(prom - det, total, 0) * 100</code></pre></div>
-              <div class="warning-box"><strong>DAX pitfall:</strong> <code>CALCULATE(COUNTROWS(base))</code> where <code>base</code> is a VAR table does not filter correctly. Always use <code>COUNTROWS(FILTER(base, condition))</code>.</div>
-            </div>
-            <div id="en-t3-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>SELECT
-    ROUND(
-        (SUM(CASE WHEN eNPS_Score >= 9 THEN 1.0 ELSE 0 END)
-       - SUM(CASE WHEN eNPS_Score <= 6 THEN 1.0 ELSE 0 END))
-        / COUNT(*) * 100, 2
-    ) AS eNPS
-FROM fato_Avaliacoes
-WHERE Survey_Type = 'Climate';</code></pre></div>
-            </div>
-            <div id="en-t3-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python</div><pre><code>climate = aval[aval["Survey_Type"] == "Climate"]
-total   = len(climate)
-prom    = (climate["eNPS_Score"] >= 9).sum()
-det     = (climate["eNPS_Score"] <= 6).sum()
-enps    = round((prom - det) / total * 100, 2) if total > 0 else 0
-print(f"eNPS: {enps}")</code></pre></div>
-            </div>
-          </div>
-        </div>
+<span style="color:#6b6760">-- Novas entradas no período</span>
+Novas_Entradas  <span style="color:#7ab8d4">=CONT.SES(dim_Colaboradores!E2:E1000,"&gt;="&amp;DATA_INICIO,
+                    dim_Colaboradores!E2:E1000,"&lt;="&amp;DATA_FIM)</span>
 
-        <!-- ── KPI 4 ── -->
-        <div class="kpi-section" id="kpi4">
-          <div class="kpi-header">
-            <div class="kpi-number">4</div>
-            <div><div class="kpi-title">Absenteeism Rate</div><div class="kpi-meta">Benchmark: ≤ 3.5% · Source: AIHR</div></div>
-          </div>
-          <div class="info-box"><strong>Formula:</strong> Absenteeism (%) = (Days absent / Available working days) × 100<br>
-          <strong>Available working days</strong> = Working days in period × Number of employees</div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t4-xl')">Excel</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t4-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t4-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t4-py')">Python</button>
-            </div>
-            <div id="en-t4-xl" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">Excel</div><pre><code>=SUMIFS(Absences[Days_Absent],
-        Absences[Department], A2,
-        Absences[Month], B2)
-/ (NETWORKDAYS(Start_Date, End_Date) * Headcount) * 100</code></pre></div>
-            </div>
-            <div id="en-t4-dax" class="tab-content">
-              <div class="formula-box"><div class="formula-label">DAX</div><pre><code>Days Absent =
-CALCULATE(
-    SUM(fato_Historico[Days_Absent]),
-    fato_Historico[Event_Type] = "Absence"
+<span style="color:#6b6760">-- HC final (ativos + licença + afastamento)</span>
+HC_Fim  <span style="color:#7ab8d4">=CONT.SES(dim_Colaboradores!C2:C1000,"Ativo")
+        +CONT.SES(dim_Colaboradores!C2:C1000,"Licença")
+        +CONT.SES(dim_Colaboradores!C2:C1000,"Afastamento")</span>
+
+<span style="color:#6b6760">-- Taxa de retenção</span>
+Retencao  <span style="color:#7ab8d4">=((HC_Fim - Novas_Entradas) / HC_Inicio) * 100</span></pre></div>
+        <div class="code-panel" id="tab-t2-dax"><pre><span style="color:#6b6760">-- Novas admissões no período (usa filtro de data do slicer)</span>
+Novas Entradas =
+<span style="color:#7ab8d4">CALCULATE</span>(
+    <span style="color:#7ab8d4">COUNTROWS</span>(dim_Colaboradores),
+    <span style="color:#7ab8d4">USERELATIONSHIP</span>(dim_Colaboradores[Data_Admissao], dim_dCalendario[Date])
 )
 
-Working Days =
-NETWORKDAYS(
-    MIN(dim_dCalendario[Date]),
-    MAX(dim_dCalendario[Date])
-) * [Active HC]
+<span style="color:#6b6760">-- Taxa de retenção: quem já estava E ficou</span>
+Retention Rate % =
+<span style="color:#7ab8d4">VAR</span> hc_ini  = [HC Início]   <span style="color:#6b6760">-- medida do KPI 1</span>
+<span style="color:#7ab8d4">VAR</span> hc_fim  = [HC Fim]      <span style="color:#6b6760">-- medida do KPI 1</span>
+<span style="color:#7ab8d4">VAR</span> novas   = [Novas Entradas]
+<span style="color:#7ab8d4">RETURN</span>
+<span style="color:#7ab8d4">DIVIDE</span>(hc_fim - novas, hc_ini, 0) * 100</pre></div>
+      </div>
+    </div>
+  </div>
 
-Absenteeism % = DIVIDE([Days Absent], [Working Days], 0) * 100</code></pre></div>
-            </div>
-            <div id="en-t4-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>SELECT
-    Department,
-    SUM(Days_Absent) AS total_absent_days,
-    (SELECT COUNT(*) FROM dim_Colaboradores WHERE Status = 'Active') * 22 AS working_days,
-    ROUND(SUM(Days_Absent) * 100.0
-          / ((SELECT COUNT(*) FROM dim_Colaboradores WHERE Status='Active') * 22)
-    , 2) AS absenteeism_pct
-FROM fato_Historico
-WHERE Event_Type = 'Absence'
-GROUP BY Department;</code></pre></div>
-            </div>
-            <div id="en-t4-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python</div><pre><code>absences = hist[hist["Event_Type"] == "Absence"]
-total_absent  = absences["Days_Absent"].sum()
-working_days  = 22 * len(col[col["Status"] == "Active"])
-absenteeism   = round(total_absent / working_days * 100, 2) if working_days > 0 else 0
-print(f"Absenteeism: {absenteeism}%")</code></pre></div>
-            </div>
-          </div>
+  <!-- KPI 3: eNPS -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">3</div><div class="kfi-title">Índice de Recomendação (eNPS)</div></div>
+    <div class="kfi-def">Usa: <strong>fato_Avaliacoes</strong> · Filtre por <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Tipo_Avaliacao = "Clima_Organizacional"</code> · Coluna: <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Nota_eNPS</code> (0–10) · <strong>Sempre filtre também por Ciclo_Referencia</strong> para não misturar períodos</div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base</div>
+        <div class="formula-main">eNPS = % Promotores (notas 9–10) − % Detratores (notas 0–6)</div>
+        <div class="formula-note">Neutros (7–8) não entram no cálculo · Escala resultante: −100 a +100</div>
+      </div>
+      <div style="background:var(--paper2);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--ink3)">
+        <strong style="color:var(--ink)">Exemplo:</strong> 40% promotores (9–10), 15% detratores (0–6) → eNPS = 40 − 15 = <strong>+25</strong>. O que importa é a <em>tendência ao longo do tempo</em>, não um número isolado.
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t3-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t3-dax')">DAX (Power BI)</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t3-sql')">SQL</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t3-py')">Python</button>
         </div>
+        <div class="code-panel active" id="tab-t3-xl"><pre><span style="color:#6b6760">-- fato_Avaliacoes: col L = Nota_eNPS, col M = Tipo_Avaliacao, col N = Ciclo_Referencia
+-- Inclua o ciclo no filtro para não misturar semestres diferentes</span>
 
-        <!-- ── KPI 5 ── -->
-        <div class="kpi-section" id="kpi5">
-          <div class="kpi-header">
-            <div class="kpi-number">5</div>
-            <div><div class="kpi-title">Time to Fill</div><div class="kpi-meta">Benchmark: 30–45 days · Source: SHRM</div></div>
-          </div>
-          <div class="info-box"><strong>Formula:</strong> Time to Fill = Date offer accepted − Date requisition opened (calendar days)<br>
-          <strong>Source:</strong> <code>dim_Vagas</code> · Filter: <code>Closure_Reason = 'Hire'</code></div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t5-xl')">Excel</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t5-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t5-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t5-py')">Python</button>
-            </div>
-            <div id="en-t5-xl" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">Excel</div><pre><code>=AVERAGEIFS(
-    Reqs[Time_to_Fill],
-    Reqs[Closure_Reason], "Hire",
-    Reqs[Department],     A2
-)</code></pre></div>
-            </div>
-            <div id="en-t5-dax" class="tab-content">
-              <div class="formula-box"><div class="formula-label">DAX</div><pre><code>Avg Time to Fill (days) =
-AVERAGEX(
-    FILTER(dim_Vagas, dim_Vagas[Closure_Reason] = "Hire"),
-    DATEDIFF(dim_Vagas[Open_Date], dim_Vagas[Accepted_Date], DAY)
-)</code></pre></div>
-            </div>
-            <div id="en-t5-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>SELECT
-    Department,
-    ROUND(AVG(JULIANDAY(Accepted_Date) - JULIANDAY(Open_Date)), 1) AS avg_time_to_fill
-FROM dim_Vagas
-WHERE Closure_Reason = 'Hire'
-  AND Accepted_Date IS NOT NULL
-GROUP BY Department
-ORDER BY avg_time_to_fill DESC;</code></pre></div>
-            </div>
-            <div id="en-t5-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python</div><pre><code>vagas = pd.read_excel("workforce.xlsx", sheet_name="Reqs",
-                      parse_dates=["Open_Date","Accepted_Date"])
-filled = vagas[vagas["Closure_Reason"] == "Hire"].copy()
-filled["ttf"] = (filled["Accepted_Date"] - filled["Open_Date"]).dt.days
-print(f"Avg Time to Fill: {filled['ttf'].mean():.1f} days")
-print(filled.groupby("Department")["ttf"].mean().sort_values(ascending=False))</code></pre></div>
-            </div>
-          </div>
+Promotores  <span style="color:#7ab8d4">=CONT.SES(L2:L1000,"&gt;=9",M2:M1000,"Clima_Organizacional",N2:N1000,"S1 2024")</span>
+Detratores  <span style="color:#7ab8d4">=CONT.SES(L2:L1000,"&lt;=6",M2:M1000,"Clima_Organizacional",N2:N1000,"S1 2024")</span>
+Total       <span style="color:#7ab8d4">=CONT.SES(M2:M1000,"Clima_Organizacional",N2:N1000,"S1 2024")</span>
+
+eNPS        <span style="color:#7ab8d4">=(Promotores/Total - Detratores/Total) * 100</span></pre></div>
+        <div class="code-panel" id="tab-t3-dax"><pre><span style="color:#6b6760">-- ⚠️ CALCULATE(COUNTROWS(variável_VAR)) não funciona corretamente em DAX.
+-- Use COUNTROWS(FILTER(base, ...)) para filtrar dentro de uma variável.</span>
+
+eNPS =
+<span style="color:#7ab8d4">VAR</span> base  = <span style="color:#7ab8d4">FILTER</span>(fato_Avaliacoes,
+                    fato_Avaliacoes[Tipo_Avaliacao] = <span style="color:#7ab87a">"Clima_Organizacional"</span>)
+<span style="color:#7ab8d4">VAR</span> total = <span style="color:#7ab8d4">COUNTROWS</span>(base)
+<span style="color:#7ab8d4">VAR</span> prom  = <span style="color:#7ab8d4">COUNTROWS</span>(<span style="color:#7ab8d4">FILTER</span>(base, fato_Avaliacoes[Nota_eNPS] &gt;= 9))
+<span style="color:#7ab8d4">VAR</span> det   = <span style="color:#7ab8d4">COUNTROWS</span>(<span style="color:#7ab8d4">FILTER</span>(base, fato_Avaliacoes[Nota_eNPS] &lt;= 6))
+<span style="color:#7ab8d4">RETURN DIVIDE</span>(prom - det, total, 0) * 100</pre></div>
+        <div class="code-panel" id="tab-t3-sql"><pre><span style="color:#6b6760">-- ⚠️ Filtro Tipo_Avaliacao é obrigatório: sem ele, mistura Clima
+--    com Clima_Desligamento_Voluntario e distorce o resultado.</span>
+
+<span style="color:#c4941a">SELECT</span> c.Departamento,
+    <span style="color:#7ab8d4">ROUND</span>((
+        <span style="color:#7ab8d4">SUM</span>(<span style="color:#c4941a">CASE WHEN</span> s.Nota_eNPS &gt;= 9 <span style="color:#c4941a">THEN</span> 1.0 <span style="color:#c4941a">ELSE</span> 0 <span style="color:#c4941a">END</span>) -
+        <span style="color:#7ab8d4">SUM</span>(<span style="color:#c4941a">CASE WHEN</span> s.Nota_eNPS &lt;= 6 <span style="color:#c4941a">THEN</span> 1.0 <span style="color:#c4941a">ELSE</span> 0 <span style="color:#c4941a">END</span>)
+    ) / <span style="color:#7ab8d4">COUNT</span>(*) * 100, 1) <span style="color:#c4941a">AS</span> eNPS
+<span style="color:#c4941a">FROM</span> fato_Avaliacoes s
+<span style="color:#c4941a">JOIN</span> dim_Colaboradores c <span style="color:#c4941a">ON</span> s.ID_Colaborador = c.ID_Colaborador
+<span style="color:#c4941a">WHERE</span> s.Tipo_Avaliacao   = <span style="color:#7ab87a">'Clima_Organizacional'</span>  <span style="color:#6b6760">-- ← filtro obrigatório</span>
+  <span style="color:#c4941a">AND</span> s.Ciclo_Referencia = <span style="color:#7ab87a">'S1 2024'</span>
+<span style="color:#c4941a">GROUP BY</span> c.Departamento
+<span style="color:#c4941a">ORDER BY</span> eNPS <span style="color:#c4941a">DESC</span>;</pre></div>
+        <div class="code-panel" id="tab-t3-py"><pre><span style="color:#c4941a">import</span> pandas <span style="color:#c4941a">as</span> pd
+
+df_aval  = pd.read_excel(<span style="color:#7ab87a">"fato_Avaliacoes.xlsx"</span>)
+df_colab = pd.read_excel(<span style="color:#7ab87a">"dim_Colaboradores.xlsx"</span>)[[<span style="color:#7ab87a">"ID_Colaborador"</span>, <span style="color:#7ab87a">"Departamento"</span>]]
+
+<span style="color:#6b6760"># ⚠️ Filtros obrigatórios antes de calcular — sem isso, mistura tipos</span>
+df_clima = df_aval[
+    (df_aval[<span style="color:#7ab87a">"Tipo_Avaliacao"</span>]   == <span style="color:#7ab87a">"Clima_Organizacional"</span>) &amp;
+    (df_aval[<span style="color:#7ab87a">"Ciclo_Referencia"</span>] == <span style="color:#7ab87a">"S1 2024"</span>)
+].copy()
+
+notas = df_clima[<span style="color:#7ab87a">"Nota_eNPS"</span>]
+n     = len(notas)
+
+<span style="color:#c4941a">if</span> n == 0:
+    print(<span style="color:#7ab87a">"Sem respostas no ciclo selecionado."</span>)
+<span style="color:#c4941a">else</span>:
+    prom = (notas &gt;= 9).sum()
+    det  = (notas &lt;= 6).sum()
+    enps = (prom - det) / n * 100
+    print(<span style="color:#7ab87a">f"eNPS: {enps:.1f}  (n={n} | Promotores={prom} | Detratores={det})"</span>)
+
+<span style="color:#6b6760"># Por departamento</span>
+df_dept = df_clima.merge(df_colab, on=<span style="color:#7ab87a">"ID_Colaborador"</span>)
+
+<span style="color:#c4941a">def</span> calc_enps(g):
+    n = len(g)
+    <span style="color:#c4941a">return</span> ((g[<span style="color:#7ab87a">"Nota_eNPS"</span>] &gt;= 9).sum() - (g[<span style="color:#7ab87a">"Nota_eNPS"</span>] &lt;= 6).sum()) / n * 100
+
+print(df_dept.groupby(<span style="color:#7ab87a">"Departamento"</span>).apply(calc_enps).round(1).rename(<span style="color:#7ab87a">"eNPS"</span>))</pre></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 4: ABSENTEÍSMO -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">4</div><div class="kfi-title">Taxa de Absenteísmo (Absenteeism Rate)</div></div>
+    <div class="kfi-def">Usa: <strong>fato_Historico</strong> · Filtre por <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Tipo_Evento IN ("Afastamento", "Licença")</code> · Conta <strong>colaboradores únicos</strong> com ao menos 1 evento</div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base</div>
+        <div class="formula-main">Absenteísmo (%) = (Colaboradores únicos com ≥1 afastamento ÷ Headcount ativo) × 100</div>
+      </div>
+      <div style="background:var(--paper2);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--ink3)">
+        <strong style="color:var(--ink)">Atenção: conte colaboradores únicos, não eventos.</strong> Se alguém teve 3 afastamentos, conta como 1. Afastamentos concentrados em uma área geralmente indicam problema de gestor ou ambiente antes de problema individual.
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t4-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t4-dax')">DAX (Power BI)</button>
         </div>
+        <div class="code-panel active" id="tab-t4-xl"><pre><span style="color:#6b6760">-- fato_Historico: col A = ID_Colaborador, col B = Tipo_Evento
+-- dim_Colaboradores: col C = Status
+--
+-- ⚠️ CONT.SES conta eventos — se alguém teve 2 afastamentos, seria contado 2×.
+-- Solução: crie uma coluna auxiliar H em dim_Colaboradores para contar
+-- quantos afastamentos cada colaborador teve no período:
+--
+--   H2 = CONT.SES(fato_Historico!A$2:A$5000, A2,
+--                 fato_Historico!B$2:B$5000, "Afastamento")
+--   (copie para todas as linhas de dim_Colaboradores)</span>
 
-        <!-- ── KPI 6 ── -->
-        <div class="kpi-section" id="kpi6">
-          <div class="kpi-header">
-            <div class="kpi-number">6</div>
-            <div><div class="kpi-title">Offer Acceptance Rate</div><div class="kpi-meta">Benchmark: &gt; 85% · Source: Michael Page</div></div>
-          </div>
-          <div class="info-box"><strong>Formula:</strong> OAR (%) = (Offers accepted / Offers made) × 100<br>
-          <strong>Proxy:</strong> if your ATS does not track offers, use <code>Closure_Reason = 'Hire'</code> as "accepted" and <code>Offer_Made = 'Y'</code> as denominator.</div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t6-xl')">Excel</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t6-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t6-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t6-py')">Python</button>
-            </div>
-            <div id="en-t6-xl" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">Excel</div><pre><code>=COUNTIFS(Reqs[Offer_Made],"Y", Reqs[Closure_Reason],"Hire")
-/ COUNTIF(Reqs[Offer_Made],"Y") * 100</code></pre></div>
-            </div>
-            <div id="en-t6-dax" class="tab-content">
-              <div class="formula-box"><div class="formula-label">DAX</div><pre><code>Offer Acceptance Rate % =
-DIVIDE(
-    CALCULATE(COUNTROWS(dim_Vagas), dim_Vagas[Closure_Reason] = "Hire",
-                                    dim_Vagas[Offer_Made]     = "Y"),
-    CALCULATE(COUNTROWS(dim_Vagas), dim_Vagas[Offer_Made]     = "Y"),
+<span style="color:#6b6760">-- Conta colaboradores ÚNICOS com ao menos 1 afastamento:</span>
+Afastados_Unicos  <span style="color:#7ab8d4">=CONT.SE(dim_Colaboradores!H2:H1000,"&gt;0")</span>
+
+<span style="color:#6b6760">-- Headcount ativo no momento</span>
+Headcount_Ativo   <span style="color:#7ab8d4">=CONT.SES(dim_Colaboradores!C2:C1000,"Ativo")</span>
+
+<span style="color:#6b6760">-- Taxa de absenteísmo</span>
+Absenteísmo       <span style="color:#7ab8d4">=(Afastados_Unicos / Headcount_Ativo) * 100</span></pre></div>
+        <div class="code-panel" id="tab-t4-dax"><pre><span style="color:#6b6760">-- DISTINCTCOUNT garante que o mesmo colaborador com múltiplos
+-- afastamentos seja contado apenas uma vez.</span>
+
+Absenteísmo % =
+<span style="color:#7ab8d4">DIVIDE</span>(
+    <span style="color:#7ab8d4">CALCULATE</span>(
+        <span style="color:#7ab8d4">DISTINCTCOUNT</span>(fato_Historico[ID_Colaborador]),
+        fato_Historico[Tipo_Evento] <span style="color:#c4941a">IN</span> {<span style="color:#7ab87a">"Afastamento"</span>, <span style="color:#7ab87a">"Licença"</span>}
+    ),
+    <span style="color:#7ab8d4">CALCULATE</span>(
+        <span style="color:#7ab8d4">COUNTROWS</span>(dim_Colaboradores),
+        dim_Colaboradores[Status] = <span style="color:#7ab87a">"Ativo"</span>
+    ),
     0
-) * 100</code></pre></div>
-            </div>
-            <div id="en-t6-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>SELECT
-    ROUND(
-        SUM(CASE WHEN Closure_Reason = 'Hire' THEN 1.0 ELSE 0 END)
-        / NULLIF(SUM(CASE WHEN Offer_Made = 'Y' THEN 1.0 ELSE 0 END), 0)
-        * 100, 2
-    ) AS offer_acceptance_rate_pct
-FROM dim_Vagas;</code></pre></div>
-            </div>
-            <div id="en-t6-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python</div><pre><code>offers_made    = vagas[vagas["Offer_Made"] == "Y"].shape[0]
-offers_accepted = vagas[(vagas["Offer_Made"] == "Y") &
-                        (vagas["Closure_Reason"] == "Hire")].shape[0]
-oar = round(offers_accepted / offers_made * 100, 2) if offers_made > 0 else 0
-print(f"Offer Acceptance Rate: {oar}%")</code></pre></div>
-            </div>
-          </div>
+) * 100</pre></div>
+      </div>
+    </div>
+  </div>
+  <!-- KPI 5: TIME TO FILL -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">5</div><div class="kfi-title">Tempo para Preencher Vaga (Time to Fill)</div></div>
+    <div class="kfi-def">Usa: <strong>dim_Vagas</strong> · Colunas: <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Data_Abertura</code>, <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Data_Fechamento</code> · Filtre sempre por <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Closure_Reason = "Contratação"</code></div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base</div>
+        <div class="formula-main">Time to Fill (dias) = Data_Fechamento − Data_Abertura</div>
+        <div class="formula-note">Média das vagas encerradas por contratação · Exclua canceladas e congeladas</div>
+      </div>
+      <div style="background:var(--paper2);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--ink3)">
+        <strong style="color:var(--ink)">TTF vs TTH:</strong> TTF mede quanto tempo o negócio ficou sem a posição preenchida (da abertura ao aceite). TTH mede a eficiência do processo seletivo (da candidatura do contratado ao aceite). São métricas complementares — uma ruim não implica a outra.
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t5-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t5-dax')">DAX (Power BI)</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t5-sql')">SQL</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t5-py')">Python</button>
         </div>
+        <div class="code-panel active" id="tab-t5-xl"><pre><span style="color:#6b6760">-- dim_Vagas: col D = Data_Abertura, col G = Data_Fechamento, col J = Closure_Reason
+-- Coluna auxiliar (col H) — dias por vaga:</span>
 
-        <!-- ── KPI 7 ── -->
-        <div class="kpi-section" id="kpi7">
-          <div class="kpi-header">
-            <div class="kpi-number">7</div>
-            <div><div class="kpi-title">Cost per Hire</div><div class="kpi-meta">Benchmark: R$ 3,000–8,000 · Source: SHRM</div></div>
-          </div>
-          <div class="info-box"><strong>Formula:</strong> CPH = (Internal costs + External costs) / Number of hires<br>
-          <strong>Internal:</strong> recruiter hours, hiring manager time · <strong>External:</strong> job boards, agencies, background checks, assessments</div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t7-xl')">Excel</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t7-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t7-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t7-py')">Python</button>
-            </div>
-            <div id="en-t7-xl" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">Excel</div><pre><code>=SUMIFS(Reqs[Total_Hire_Cost], Reqs[Closure_Reason],"Hire")
-/ COUNTIF(Reqs[Closure_Reason],"Hire")</code></pre></div>
-            </div>
-            <div id="en-t7-dax" class="tab-content">
-              <div class="formula-box"><div class="formula-label">DAX</div><pre><code>Cost per Hire =
-DIVIDE(
-    CALCULATE(SUM(dim_Vagas[Total_Hire_Cost]),   dim_Vagas[Closure_Reason] = "Hire"),
-    CALCULATE(COUNTROWS(dim_Vagas),              dim_Vagas[Closure_Reason] = "Hire"),
+H2  <span style="color:#7ab8d4">=SE(J2="Contratação", G2-D2, "")</span>
+
+<span style="color:#6b6760">-- Média geral (só vagas encerradas por contratação):</span>
+TTF_Medio  <span style="color:#7ab8d4">=MÉDIASES(H2:H1000, J2:J1000, "Contratação")</span></pre></div>
+        <div class="code-panel" id="tab-t5-dax"><pre>Time to Fill (dias) =
+<span style="color:#7ab8d4">AVERAGEX</span>(
+    <span style="color:#7ab8d4">FILTER</span>(dim_Vagas, dim_Vagas[Closure_Reason] = <span style="color:#7ab87a">"Contratação"</span>),
+    dim_Vagas[Data_Fechamento] - dim_Vagas[Data_Abertura]
+)</pre></div>
+        <div class="code-panel" id="tab-t5-sql"><pre><span style="color:#6b6760">-- julianday() é função do SQLite.
+-- SQL Server: DATEDIFF(day, Data_Abertura, Data_Fechamento)
+-- PostgreSQL: Data_Fechamento - Data_Abertura (retorna integer diretamente)</span>
+
+<span style="color:#c4941a">SELECT</span>
+    Departamento_Vaga,
+    <span style="color:#7ab8d4">ROUND</span>(<span style="color:#7ab8d4">AVG</span>(<span style="color:#7ab8d4">julianday</span>(Data_Fechamento) - <span style="color:#7ab8d4">julianday</span>(Data_Abertura)), 1)
+        <span style="color:#c4941a">AS</span> ttf_medio_dias
+<span style="color:#c4941a">FROM</span> dim_Vagas
+<span style="color:#c4941a">WHERE</span> Closure_Reason = <span style="color:#7ab87a">'Contratação'</span>
+<span style="color:#c4941a">GROUP BY</span> Departamento_Vaga
+<span style="color:#c4941a">ORDER BY</span> ttf_medio_dias <span style="color:#c4941a">DESC</span>;</pre></div>
+        <div class="code-panel" id="tab-t5-py"><pre>df_v = pd.read_excel(<span style="color:#7ab87a">"dim_Vagas.xlsx"</span>, parse_dates=[<span style="color:#7ab87a">"Data_Abertura"</span>, <span style="color:#7ab87a">"Data_Fechamento"</span>])
+contrat = df_v[df_v[<span style="color:#7ab87a">"Closure_Reason"</span>] == <span style="color:#7ab87a">"Contratação"</span>].copy()
+contrat[<span style="color:#7ab87a">"TTF"</span>] = (contrat[<span style="color:#7ab87a">"Data_Fechamento"</span>] - contrat[<span style="color:#7ab87a">"Data_Abertura"</span>]).dt.days
+print(contrat.groupby(<span style="color:#7ab87a">"Departamento_Vaga"</span>)[<span style="color:#7ab87a">"TTF"</span>].mean().round(1))</pre></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 6: OFFER ACCEPTANCE RATE -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">6</div><div class="kfi-title">Taxa de Aceite de Oferta (Offer Acceptance Rate)</div></div>
+    <div class="kfi-def">Usa: <strong>dim_Vagas</strong> · Coluna <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Oferta_Feita</code> (Sim/Não — chegou à etapa de proposta) + <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Closure_Reason = "Contratação"</code> para aceites</div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base</div>
+        <div class="formula-main">OAR (%) = (Ofertas Aceitas ÷ Total de Ofertas Feitas) × 100</div>
+        <div class="formula-note">Oferta Aceita = Closure_Reason = "Contratação" · Oferta Feita = campo Oferta_Feita = "Sim"</div>
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t6-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t6-dax')">DAX (Power BI)</button>
+        </div>
+        <div class="code-panel active" id="tab-t6-xl"><pre><span style="color:#6b6760">-- dim_Vagas: col J = Closure_Reason, col K = Oferta_Feita (Sim/Não)
+-- Oferta aceita = Closure_Reason = "Contratação"</span>
+
+Total_Ofertas  <span style="color:#7ab8d4">=CONT.SES(dim_Vagas!K2:K1000,"Sim")</span>
+Aceitas        <span style="color:#7ab8d4">=CONT.SES(dim_Vagas!J2:J1000,"Contratação")</span>
+
+OAR  <span style="color:#7ab8d4">=(Aceitas / Total_Ofertas) * 100</span></pre></div>
+        <div class="code-panel" id="tab-t6-dax"><pre><span style="color:#6b6760">-- Oferta aceita: derivada de Closure_Reason = "Contratação"
+-- Oferta feita: campo Oferta_Feita (Sim/Não) na dim_Vagas</span>
+
+Offer Acceptance Rate % =
+<span style="color:#7ab8d4">DIVIDE</span>(
+    <span style="color:#7ab8d4">CALCULATE</span>(<span style="color:#7ab8d4">COUNTROWS</span>(dim_Vagas),
+               dim_Vagas[Closure_Reason] = <span style="color:#7ab87a">"Contratação"</span>),
+    <span style="color:#7ab8d4">CALCULATE</span>(<span style="color:#7ab8d4">COUNTROWS</span>(dim_Vagas),
+               dim_Vagas[Oferta_Feita] = <span style="color:#7ab87a">"Sim"</span>),
     0
-)</code></pre></div>
-            </div>
-            <div id="en-t7-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>SELECT
-    Department,
-    ROUND(AVG(Total_Hire_Cost), 2) AS avg_cost_per_hire,
-    COUNT(*)                        AS total_hires
-FROM dim_Vagas
-WHERE Closure_Reason = 'Hire'
-GROUP BY Department
-ORDER BY avg_cost_per_hire DESC;</code></pre></div>
-            </div>
-            <div id="en-t7-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python</div><pre><code>hired = vagas[vagas["Closure_Reason"] == "Hire"]
-cph = round(hired["Total_Hire_Cost"].mean(), 2)
-print(f"Cost per Hire: R$ {cph:,.2f}")</code></pre></div>
-            </div>
-          </div>
-        </div>
+) * 100</pre></div>
+      </div>
+    </div>
+  </div>
 
-        <!-- ── KPI 8 ── -->
-        <div class="kpi-section" id="kpi8">
-          <div class="kpi-header">
-            <div class="kpi-number">8</div>
-            <div><div class="kpi-title">Quality of Hire</div><div class="kpi-meta">Benchmark: &gt; 70/100 · Source: AIHR</div></div>
-          </div>
-          <div class="info-box"><strong>Formula:</strong> Quality of Hire = (Performance Score + Retention Score) / 2<br>
-          Both components on a 0–100 scale. <code>Manager_Rating</code> (0–5) → multiply × 20 to convert to 0–100.<br>
-          <strong>Retention Score:</strong> 100 if employee is still active 12+ months after hire; 0 otherwise.</div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t8-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t8-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t8-py')">Python</button>
-            </div>
-            <div id="en-t8-dax" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">DAX</div><pre><code>Performance Score (0-100) =
-AVERAGEX(
-    FILTER(fato_Avaliacoes, fato_Avaliacoes[Survey_Type] = "180_Assessment"),
-    fato_Avaliacoes[Manager_Rating] * 20
+  <!-- KPI 7: COST PER HIRE -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">7</div><div class="kfi-title">Custo por Contratação (Cost per Hire)</div></div>
+    <div class="kfi-def">Usa: tabela <strong>fCustos</strong> (criada manualmente) + <strong>dim_Vagas</strong> para total de contratações</div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base (SHRM · Michael Page)</div>
+        <div class="formula-main">CPH = (Custos Internos + Custos Externos) ÷ Total de Contratações</div>
+        <div class="formula-note">Internos: salário da equipe de RH alocado, tempo de gestores em entrevistas · Externos: ATS, anúncios, agências, exames</div>
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t7-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t7-dax')">DAX (Power BI)</button>
+        </div>
+        <div class="code-panel active" id="tab-t7-xl"><pre><span style="color:#6b6760">-- Crie aba "fCustos": col A = Categoria | col B = Valor (R$)
+-- Categorias típicas: "Anúncio LinkedIn", "Taxa ATS (Gupy)",
+-- "Agência R&amp;S", "Exames admissionais", "Horas equipe RH"</span>
+
+Total_Custos      <span style="color:#7ab8d4">=SOMA(fCustos!B2:B100)</span>
+Total_Contratados <span style="color:#7ab8d4">=CONT.SES(dim_Vagas!J2:J1000,"Contratação")</span>  <span style="color:#6b6760">-- J = Closure_Reason</span>
+
+CPH  <span style="color:#7ab8d4">=Total_Custos / Total_Contratados</span></pre></div>
+        <div class="code-panel" id="tab-t7-dax"><pre><span style="color:#6b6760">-- Pressupõe tabela fCustos importada com coluna Valor</span>
+Cost per Hire =
+<span style="color:#7ab8d4">DIVIDE</span>(
+    <span style="color:#7ab8d4">SUM</span>(fCustos[Valor]),
+    <span style="color:#7ab8d4">CALCULATE</span>(<span style="color:#7ab8d4">COUNTROWS</span>(dim_Vagas),
+               dim_Vagas[Closure_Reason] = <span style="color:#7ab87a">"Contratação"</span>),
+    0
+)</pre></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 8: QUALITY OF HIRE -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">8</div><div class="kfi-title">Qualidade da Contratação (Quality of Hire)</div></div>
+    <div class="kfi-def">Usa: <strong>fato_Avaliacoes</strong> (Media_Gestor em escala 0–5, convertida para 0–100) + <strong>dim_Colaboradores</strong> (Status, Data_Admissao)</div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base (LinkedIn Talent Solutions · SHRM)</div>
+        <div class="formula-main">QoH = (Performance_Score + Retention_Score) ÷ 2</div>
+        <div class="formula-note">Performance_Score = Media_Gestor × 20 (converte escala 0–5 → 0–100) · Retention_Score = 100 se ativo após 12 meses, 0 se saiu</div>
+      </div>
+      <div style="background:var(--paper2);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--ink3)">
+        <strong style="color:var(--ink)">Atenção à escala:</strong> fato_Avaliacoes usa escala 0–5 (Media_Gestor). Para o QoH ficar em 0–100 e ser comparável ao benchmark de mercado (&gt;75/100), multiplique Media_Gestor por 20 antes de calcular a média.
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t8-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t8-dax')">DAX (Power BI)</button>
+        </div>
+        <div class="code-panel active" id="tab-t8-xl"><pre><span style="color:#6b6760">-- dim_Colaboradores: col C = Status, col E = Data_Admissao
+-- fato_Avaliacoes: Media_Gestor (0-5) → normalize para 0-100 multiplicando por 20
+-- Use PROCV para buscar a Media_Gestor de cada colaborador em fato_Avaliacoes
+
+-- Col M: Nota_Performance_100 = PROCV(A2, fato_Avaliacoes!A:O, 14, 0) * 20
+--        (ajuste o índice 14 para a coluna correta de Media_Gestor)
+
+-- Col N: Retencao_1ano (0 ou 100)
+-- N2 = SE(E(HOJE()-E2&gt;365, C2="Ativo"), 100,
+--         SE(HOJE()-E2&gt;365, 0, ""))   ← vazio se ainda &lt; 1 ano de casa
+
+QoH_Individual  <span style="color:#7ab8d4">=(M2+N2)/2</span>
+
+<span style="color:#6b6760">-- Média para o período (filtrado por ano de admissão):</span>
+QoH_Medio  <span style="color:#7ab8d4">=MÉDIASES(M2:M1000, ANO_ADMISSAO_COL, 2023)</span></pre></div>
+        <div class="code-panel" id="tab-t8-dax"><pre><span style="color:#6b6760">-- Performance: Media_Gestor (0–5) convertida para 0–100 (×20)
+-- Filtra apenas avaliações "Avaliacao_180" para não misturar com Clima</span>
+Performance Score (0-100) =
+<span style="color:#7ab8d4">AVERAGEX</span>(
+    <span style="color:#7ab8d4">FILTER</span>(fato_Avaliacoes, fato_Avaliacoes[Tipo_Avaliacao] = <span style="color:#7ab87a">"Avaliacao_180"</span>),
+    fato_Avaliacoes[Media_Gestor] * 20
 )
 
+<span style="color:#6b6760">-- Retenção: % dos contratados com &gt;= 12 meses que ainda estão ativos</span>
 Retention Score (0-100) =
-DIVIDE(
-    CALCULATE(COUNTROWS(dim_Colaboradores),
-              dim_Colaboradores[Status] = "Active",
-              DATEDIFF(dim_Colaboradores[Hire_Date], TODAY(), MONTH) >= 12),
-    CALCULATE(COUNTROWS(dim_Colaboradores),
-              DATEDIFF(dim_Colaboradores[Hire_Date], TODAY(), MONTH) >= 12),
+<span style="color:#7ab8d4">DIVIDE</span>(
+    <span style="color:#7ab8d4">CALCULATE</span>(
+        <span style="color:#7ab8d4">COUNTROWS</span>(dim_Colaboradores),
+        dim_Colaboradores[Status] = <span style="color:#7ab87a">"Ativo"</span>,
+        <span style="color:#7ab8d4">DATEDIFF</span>(dim_Colaboradores[Data_Admissao], <span style="color:#7ab8d4">TODAY</span>(), MONTH) &gt;= 12
+    ),
+    <span style="color:#7ab8d4">CALCULATE</span>(
+        <span style="color:#7ab8d4">COUNTROWS</span>(dim_Colaboradores),
+        <span style="color:#7ab8d4">DATEDIFF</span>(dim_Colaboradores[Data_Admissao], <span style="color:#7ab8d4">TODAY</span>(), MONTH) &gt;= 12
+    ),
     0
 ) * 100
 
-Quality of Hire = DIVIDE([Performance Score (0-100)] + [Retention Score (0-100)], 2)</code></pre></div>
-            </div>
-            <div id="en-t8-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>WITH perf AS (
-    SELECT ID_Employee, AVG(Manager_Rating * 20) AS perf_score
-    FROM fato_Avaliacoes WHERE Survey_Type = '180_Assessment'
-    GROUP BY ID_Employee
-),
-retention AS (
-    SELECT ID_Employee,
-           CASE WHEN Status = 'Active'
-                 AND JULIANDAY('now') - JULIANDAY(Hire_Date) >= 365
-                THEN 100 ELSE 0 END AS ret_score
-    FROM dim_Colaboradores
-    WHERE JULIANDAY('now') - JULIANDAY(Hire_Date) >= 365
-)
-SELECT ROUND(AVG((p.perf_score + r.ret_score) / 2.0), 2) AS quality_of_hire
-FROM retention r
-JOIN perf p ON r.ID_Employee = p.ID_Employee;</code></pre></div>
-            </div>
-            <div id="en-t8-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python</div><pre><code>hoje = pd.Timestamp(date.today())
-# Employees hired 12+ months ago
-eligible = col[((hoje - col["Hire_Date"]) / pd.Timedelta(days=365)) >= 1].copy()
-eligible["ret_score"] = (eligible["Status"] == "Active").astype(int) * 100
-
-perf_180 = aval[aval["Survey_Type"] == "180_Assessment"].groupby("ID_Employee")["Manager_Rating"].mean() * 20
-eligible = eligible.merge(perf_180.rename("perf_score"), on="ID_Employee", how="left")
-eligible["quality_of_hire"] = (eligible["perf_score"].fillna(0) + eligible["ret_score"]) / 2
-print(f"Avg Quality of Hire: {eligible['quality_of_hire'].mean():.1f}")</code></pre></div>
-            </div>
-          </div>
+<span style="color:#6b6760">-- Quality of Hire: média entre os dois scores</span>
+Quality of Hire =
+<span style="color:#7ab8d4">DIVIDE</span>([Performance Score (0-100)] + [Retention Score (0-100)], 2)</pre></div>
+      </div>
+    </div>
+  </div>
+  <!-- KPI 9: VOLUNTARY TURNOVER -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">9</div><div class="kfi-title">Rotatividade Voluntária (Voluntary Turnover Rate)</div></div>
+    <div class="kfi-def">Usa: <strong>fato_Historico</strong> · Filtre por <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Tipo_Evento = "Desligamento"</code> <strong>E</strong> <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Motivo = "Voluntário"</code> · O campo Motivo fica em fato_Historico, não em dim_Colaboradores</div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base</div>
+        <div class="formula-main">Vol. Turnover (%) = (Saídas Voluntárias ÷ HC Médio) × 100</div>
+        <div class="formula-note">Saídas Voluntárias = fato_Historico onde Tipo_Evento = "Desligamento" E Motivo = "Voluntário"</div>
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t9-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t9-dax')">DAX (Power BI)</button>
         </div>
+        <div class="code-panel active" id="tab-t9-xl"><pre><span style="color:#6b6760">-- fato_Historico: col B = Tipo_Evento, col D = Motivo
+-- Use dois critérios: Tipo_Evento = "Desligamento" E Motivo = "Voluntário"
+-- (não busque em dim_Colaboradores — o motivo da saída fica em fato_Historico)</span>
 
-        <!-- ── KPI 9 ── -->
-        <div class="kpi-section" id="kpi9">
-          <div class="kpi-header">
-            <div class="kpi-number">9</div>
-            <div><div class="kpi-title">Voluntary Turnover</div><div class="kpi-meta">Benchmark: &lt; 10% · Source: SHRM</div></div>
-          </div>
-          <div class="info-box"><strong>Formula:</strong> Voluntary Turnover (%) = (Voluntary exits / Average HC) × 100<br>
-          <strong>Source:</strong> <code>fato_Historico</code> filtered by <code>Event_Type = 'Termination'</code> AND <code>Reason = 'Voluntary'</code></div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t9-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t9-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t9-py')">Python</button>
-            </div>
-            <div id="en-t9-dax" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">DAX</div><pre><code>Voluntary Turnover % =
-DIVIDE(
-    CALCULATE(COUNTROWS(fato_Historico),
-              fato_Historico[Event_Type] = "Termination",
-              fato_Historico[Reason]     = "Voluntary"),
-    [Average HC], 0
-) * 100</code></pre></div>
-            </div>
-            <div id="en-t9-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>SELECT
-    ROUND(
-        SUM(CASE WHEN Event_Type='Termination' AND Reason='Voluntary' THEN 1.0 ELSE 0 END)
-        / NULLIF((SELECT COUNT(*) FROM dim_Colaboradores WHERE Status='Active'), 0)
-        * 100, 2
-    ) AS voluntary_turnover_pct
-FROM fato_Historico
-WHERE strftime('%Y', Event_Date) = strftime('%Y','now');</code></pre></div>
-            </div>
-            <div id="en-t9-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python</div><pre><code>vol_exits = hist[
-    (hist["Event_Type"] == "Termination") &
-    (hist["Reason"]     == "Voluntary") &
-    (hist["Event_Date"].dt.year == year)
-].shape[0]
-vol_turnover = round(vol_exits / avg_hc * 100, 2) if avg_hc > 0 else 0
-print(f"Voluntary Turnover: {vol_turnover}%")</code></pre></div>
-            </div>
-          </div>
+Saidas_Vol  <span style="color:#7ab8d4">=CONT.SES(fato_Historico!B2:B5000,"Desligamento",
+                fato_Historico!D2:D5000,"Voluntário")</span>
+
+Vol_Turnover  <span style="color:#7ab8d4">=(Saidas_Vol / HC_Medio) * 100</span>  <span style="color:#6b6760">-- HC_Medio calculado no KPI 1</span></pre></div>
+        <div class="code-panel" id="tab-t9-dax"><pre><span style="color:#6b6760">-- Tipo_Evento e Motivo ficam em fato_Historico, não em dim_Colaboradores</span>
+
+Voluntary Turnover % =
+<span style="color:#7ab8d4">DIVIDE</span>(
+    <span style="color:#7ab8d4">CALCULATE</span>(
+        <span style="color:#7ab8d4">COUNTROWS</span>(fato_Historico),
+        fato_Historico[Tipo_Evento] = <span style="color:#7ab87a">"Desligamento"</span>,
+        fato_Historico[Motivo]      = <span style="color:#7ab87a">"Voluntário"</span>
+    ),
+    [HC Médio],   <span style="color:#6b6760">-- medida criada no KPI 1</span>
+    0
+) * 100</pre></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 10: TIME TO HIRE -->
+  <div class="kpi-formula-card">
+    <div class="kfi-header"><div class="kfi-num">10</div><div class="kfi-title">Tempo para Contratar (Time to Hire)</div></div>
+    <div class="kfi-def">Usa: <strong>dim_Vagas</strong> · Colunas: <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Data_Candidatura_Contratado</code> (data em que o contratado entrou no funil) e <code style="font-family:var(--mono);font-size:12px;background:var(--paper2);padding:1px 5px;border-radius:3px">Data_Fechamento</code></div>
+    <div class="kfi-body">
+      <div class="formula-box">
+        <div class="formula-label">Fórmula base</div>
+        <div class="formula-main">Time to Hire (dias) = Data_Fechamento − Data_Candidatura_Contratado</div>
+        <div class="formula-note">Diferente do Time to Fill: mede a eficiência do processo seletivo, não o tempo total sem a posição preenchida</div>
+      </div>
+      <div class="code-tabs">
+        <div class="code-tab-bar">
+          <button class="code-tab-btn active" onclick="switchTab(this,'t10-xl')">Excel</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'t10-dax')">DAX (Power BI)</button>
         </div>
+        <div class="code-panel active" id="tab-t10-xl"><pre><span style="color:#6b6760">-- dim_Vagas: col D = Data_Candidatura_Contratado, col G = Data_Fechamento, col H = Status_Vaga
 
-        <!-- ── KPI 10 ── -->
-        <div class="kpi-section" id="kpi10">
-          <div class="kpi-header">
-            <div class="kpi-number">10</div>
-            <div><div class="kpi-title">Time to Hire</div><div class="kpi-meta">Benchmark: 14–23 days · Source: LinkedIn Talent Trends</div></div>
-          </div>
-          <div class="info-box"><strong>Formula:</strong> Time to Hire = Date offer accepted − Date candidate applied (days)<br>
-          <strong>Difference from TTF:</strong> TTF measures from req opened; TTH measures from the hired candidate's application. Both are useful — TTF for planning, TTH for candidate experience.</div>
-          <div class="tab-container">
-            <div class="tab-header">
-              <button class="tab-btn active" onclick="switchTab(event,'en-t10-dax')">DAX</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t10-sql')">SQL</button>
-              <button class="tab-btn" onclick="switchTab(event,'en-t10-py')">Python</button>
-            </div>
-            <div id="en-t10-dax" class="tab-content active">
-              <div class="formula-box"><div class="formula-label">DAX</div><pre><code>Avg Time to Hire (days) =
-AVERAGEX(
-    FILTER(dim_Vagas, dim_Vagas[Closure_Reason] = "Hire"),
-    DATEDIFF(dim_Vagas[Hired_Application_Date], dim_Vagas[Accepted_Date], DAY)
-)</code></pre></div>
-            </div>
-            <div id="en-t10-sql" class="tab-content">
-              <div class="formula-box"><div class="formula-label">SQL</div><pre><code>SELECT
-    ROUND(AVG(JULIANDAY(Accepted_Date) - JULIANDAY(Hired_Application_Date)), 1)
-        AS avg_time_to_hire
-FROM dim_Vagas
-WHERE Closure_Reason = 'Hire'
-  AND Hired_Application_Date IS NOT NULL;</code></pre></div>
-            </div>
-            <div id="en-t10-py" class="tab-content">
-              <div class="formula-box"><div class="formula-label">Python</div><pre><code>filled["tth"] = (filled["Accepted_Date"] - filled["Hired_Application_Date"]).dt.days
-print(f"Avg Time to Hire: {filled['tth'].mean():.1f} days")</code></pre></div>
-            </div>
-          </div>
-        </div>
+-- Dias por vaga (coluna auxiliar F):
+F2  <span style="color:#7ab8d4">=SE(H2="Fechada", G2-D2, "")</span>
 
-        <div class="tip-box">
-          <strong>TTF vs. TTH — which to use when:</strong><br>
-          Use <strong>Time to Fill</strong> for capacity planning (how long until a seat is filled). Use <strong>Time to Hire</strong> for candidate experience (how long a specific person waited from application to offer). Report both to TA leaders — they answer different questions.
-        </div>
-      </section>
+<span style="color:#6b6760">-- Média geral:</span>
+TTH_Medio  <span style="color:#7ab8d4">=MÉDIASES(F2:F1000, H2:H1000, "Fechada")</span></pre></div>
+        <div class="code-panel" id="tab-t10-dax"><pre><span style="color:#6b6760">-- Usa dim_Vagas em todo lugar (consistência com o schema)
+-- Data_Candidatura_Contratado deve ser exportada do ATS</span>
 
-      <!-- ========== MODULE 3: BUSINESS QUESTIONS ========== -->
+Time to Hire (dias) =
+<span style="color:#7ab8d4">AVERAGEX</span>(
+    <span style="color:#7ab8d4">FILTER</span>(dim_Vagas, dim_Vagas[Status_Vaga] = <span style="color:#7ab87a">"Fechada"</span>),
+    dim_Vagas[Data_Fechamento] - dim_Vagas[Data_Candidatura_Contratado]
+)</pre></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <div class="tip-box-label">💡 Onde extrair os dados</div>
+    <p><strong>dim_Colaboradores:</strong> export do HRIS (SAP SuccessFactors, Gupy, ADP, Oracle HCM, ou planilha do DP).<br><br>
+    <strong>fato_Historico:</strong> export de eventos do HRIS ou log de alterações de RH. Toda saída, promoção ou afastamento deve gerar uma linha aqui — com Tipo_Evento e Motivo preenchidos.<br><br>
+    <strong>dim_Vagas:</strong> export do ATS (Gupy, Greenhouse, Lever) ou planilha de controle de vagas.<br><br>
+    <strong>Nota_eNPS:</strong> Google Forms, Microsoft Forms, Qualtrics ou Culture Amp. Pergunta padrão: <em>"Em uma escala de 0 a 10, com que probabilidade você recomendaria esta empresa como um ótimo lugar para trabalhar?"</em></p>
+  </div>
+</section>
+
+      <!-- ========== MÓDULO 3: PERGUNTAS DE NEGÓCIO ========== -->
       <section id="modulo3" class="module-section">
         <div class="module-header">
           <div class="module-badge">Module 3</div>
           <h2>Business Questions</h2>
-          <p>How to turn data into answers leaders actually need</p>
+          <p>How to turn data into answers that leaders actually need</p>
         </div>
 
         <div class="info-box">
@@ -896,137 +1006,208 @@ print(f"Avg Time to Hire: {filled['tth'].mean():.1f} days")</code></pre></div>
 
         <div class="qa-list">
 
+          <!-- Q1 -->
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>Why is our turnover above the industry average?</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>Why is our turnover above the industry average?</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
               <p><strong>3-layer diagnosis:</strong></p>
               <ol>
                 <li><strong>Demographic layer</strong> — Segment turnover by department, age group, tenure band (0–6m, 7–12m, 1–3y, 3+y) and manager. A 25% turnover can hide one department at 60% and another at 5%.</li>
                 <li><strong>Time layer</strong> — Plot exits month by month. Seasonal peaks (Jan–Feb post-bonus, Jul–Aug) indicate retention by financial incentive, not genuine engagement.</li>
-                <li><strong>Reason layer</strong> — Cross <code>fato_Historico[Reason]</code> with exit date. If "external offer" dominates, it's a compensation competitiveness problem; if "climate/manager" dominates, it's a leadership problem.</li>
+                <li><strong>Reason layer</strong> — Cross <code>fato_Historico[Reason]</code> with exit date. If "external offer" dominates, it's a compensation problem; if "climate/manager" dominates, it's a leadership problem.</li>
               </ol>
-              <div class="formula-box"><div class="formula-label">DAX — Turnover by Manager (Top 5 worst)</div><pre><code>Turnover by Manager =
-VAR exits   = CALCULATE(COUNTROWS(fato_Historico), fato_Historico[Event_Type] = "Termination")
-VAR avg_hc  = [Average HC]
-RETURN DIVIDE(exits, avg_hc, 0) * 100</code></pre></div>
-              <p>Create a table visual with <em>dim_Colaboradores[Manager]</em> on the axis and this measure as the value. Sort descending, apply conditional formatting: ≥20% red, 10–20% yellow.</p>
+              <div class="formula-box">
+                <div class="formula-label">DAX — Turnover by Manager (Top 5 worst)</div>
+                <pre><code>Turnover por Gestor =
+VAR saidas =
+    CALCULATE(
+        COUNTROWS(fato_Historico),
+        fato_Historico[Tipo_Evento] = "Desligamento"
+    )
+VAR hc_medio = [HC Médio]
+RETURN DIVIDE(saidas, hc_medio, 0) * 100</code></pre>
+                <p style="margin-top:8px;font-size:0.85rem;color:#666">
+                  Create a table visual with <em>dim_Colaboradores[Manager]</em> on the axis and this measure as value. Sort descending, apply conditional formatting: ≥20% red, 10–20% yellow.
+                </p>
+              </div>
               <p><strong>Recommended action:</strong> Present the "turnover heat map" to the CHRO before proposing any intervention. Avoid one-size-fits-all solutions (e.g., across-the-board raises) when the problem is localized.</p>
             </div>
           </div>
 
+          <!-- Q2 -->
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>Which employees are most likely to leave in the next 90 days?</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>Which employees are most likely to leave in the next 90 days?</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
               <p><strong>Flight Risk Model — 5 signals:</strong></p>
               <table class="benchmark-table">
                 <thead><tr><th>Signal</th><th>How to measure</th><th>Suggested weight</th></tr></thead>
                 <tbody>
-                  <tr><td>Individual eNPS ≤ 6</td><td>fato_Avaliacoes[eNPS_Score]</td><td>30%</td></tr>
-                  <tr><td>Performance ≤ 2/5 or ≥ 4.5/5</td><td>fato_Avaliacoes[Manager_Rating]</td><td>20%</td></tr>
-                  <tr><td>18+ months in role without promotion</td><td>dim_Colaboradores[Last_Promotion_Date]</td><td>20%</td></tr>
+                  <tr><td>Individual eNPS ≤ 6</td><td>fato_Avaliacoes[Nota_eNPS]</td><td>30%</td></tr>
+                  <tr><td>Performance ≤ 2/5 or ≥ 4.5/5</td><td>fato_Avaliacoes[Media_Gestor]</td><td>20%</td></tr>
+                  <tr><td>18+ months in role without promotion</td><td>dim_Colaboradores[Data_Ultima_Promocao]</td><td>20%</td></tr>
                   <tr><td>Manager with historical turnover > 20%</td><td>Derived measure</td><td>15%</td></tr>
-                  <tr><td>Salary below band median</td><td>dim_Colaboradores[Salary] vs band</td><td>15%</td></tr>
+                  <tr><td>Salary below band median</td><td>dim_Colaboradores[Salario] vs banda</td><td>15%</td></tr>
                 </tbody>
               </table>
-              <div class="formula-box"><div class="formula-label">Python — Flight Risk Score</div><pre><code>df["months_no_promo"] = ((hoje - df["Last_Promotion_Date"]) / pd.Timedelta(days=30)).round()
-df["enps_low"]        = (df["eNPS_Score"] <= 6).astype(int)
-df["no_promo_flag"]   = (df["months_no_promo"] >= 18).astype(int)
-df["extreme_perf"]    = ((df["Manager_Rating"] <= 2) | (df["Manager_Rating"] >= 4.5)).astype(int)
+              <div class="formula-box">
+                <div class="formula-label">Python — Flight Risk Score</div>
+                <pre><code>import pandas as pd
+from datetime import date
+
+df = pd.read_excel("workforce.xlsx", parse_dates=["Data_Admissao","Data_Ultima_Promocao"])
+hoje = pd.Timestamp(date.today())
+
+df["meses_sem_promocao"] = ((hoje - df["Data_Ultima_Promocao"]) / pd.Timedelta(days=30)).round()
+df["enps_baixo"]         = (df["Nota_eNPS"] <= 6).astype(int)
+df["sem_promocao_flag"]  = (df["meses_sem_promocao"] >= 18).astype(int)
+df["perf_extrema"]       = ((df["Media_Gestor"] <= 2) | (df["Media_Gestor"] >= 4.5)).astype(int)
 
 df["flight_risk_score"] = (
-    df["enps_low"]      * 30 +
-    df["extreme_perf"]  * 20 +
-    df["no_promo_flag"] * 20
-) / 70  # normalize 0-100
+    df["enps_baixo"]        * 30 +
+    df["perf_extrema"]      * 20 +
+    df["sem_promocao_flag"] * 20
+) / 70  # normaliza 0-100
 
-high_risk = df[df["flight_risk_score"] >= 60].sort_values("flight_risk_score", ascending=False)
-print(high_risk[["Name","Department","Manager","flight_risk_score"]].head(20))</code></pre></div>
+alto_risco = df[df["flight_risk_score"] >= 60].sort_values("flight_risk_score", ascending=False)
+print(alto_risco[["Nome","Departamento","Gestor","flight_risk_score"]].head(20))</code></pre>
+              </div>
               <p><strong>Privacy note:</strong> This model processes sensitive personal data. Ensure the purpose is documented, access is restricted to HRBPs and the direct manager, and no communication reaches the employee without a concrete retention action attached.</p>
             </div>
           </div>
 
+          <!-- Q3 -->
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>Our hiring process is taking too long — where is the bottleneck?</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>Our hiring process is taking too long — where is the bottleneck?</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
               <p><strong>Break Time to Fill into stages:</strong></p>
-              <div class="formula-box"><div class="formula-label">SQL — Average time per funnel stage</div><pre><code>SELECT
-    Department,
-    AVG(JULIANDAY(Screening_Date)   - JULIANDAY(Open_Date))      AS days_open_to_screen,
-    AVG(JULIANDAY(Interview_Date)   - JULIANDAY(Screening_Date)) AS days_screen_to_interview,
-    AVG(JULIANDAY(Offer_Date)       - JULIANDAY(Interview_Date)) AS days_interview_to_offer,
-    AVG(JULIANDAY(Accepted_Date)    - JULIANDAY(Offer_Date))     AS days_offer_to_accept,
-    AVG(JULIANDAY(Accepted_Date)    - JULIANDAY(Open_Date))      AS ttf_total
+              <div class="formula-box">
+                <div class="formula-label">SQL — Average time per funnel stage</div>
+                <pre><code>-- Requer colunas de data por etapa em dim_Vagas
+SELECT
+    Departamento,
+    AVG(JULIANDAY(Data_Triagem)      - JULIANDAY(Data_Abertura))    AS dias_abertura_triagem,
+    AVG(JULIANDAY(Data_Entrevista)   - JULIANDAY(Data_Triagem))     AS dias_triagem_entrevista,
+    AVG(JULIANDAY(Data_Oferta)       - JULIANDAY(Data_Entrevista))  AS dias_entrevista_oferta,
+    AVG(JULIANDAY(Data_Aceite)       - JULIANDAY(Data_Oferta))      AS dias_oferta_aceite,
+    AVG(JULIANDAY(Data_Aceite)       - JULIANDAY(Data_Abertura))    AS time_to_fill_total
 FROM dim_Vagas
-WHERE Closure_Reason = 'Hire'
-GROUP BY Department
-ORDER BY ttf_total DESC;</code></pre></div>
+WHERE Closure_Reason = 'Contratação'
+GROUP BY Departamento
+ORDER BY time_to_fill_total DESC;</code></pre>
+              </div>
+              <p><strong>Interpretação rápida:</strong></p>
               <ul>
-                <li><strong>Screening→Interview > 7 days:</strong> Overloaded recruiter or ambiguous screening criteria → revise scorecard.</li>
+                <li><strong>Screening→Interview > 7 days:</strong> Overloaded recruiter or ambiguous criteria → revise screening scorecard.</li>
                 <li><strong>Interview→Offer > 5 days:</strong> Slow internal approval (committee, VP) → create simplified approval authority for operational roles.</li>
                 <li><strong>Offer→Accept > 3 days:</strong> Below-expectation offer or active competition → benchmark salary before making the offer.</li>
               </ul>
+              <p><strong>Benchmark target:</strong> Total Time to Fill ≤ 30 days (individual contributors), ≤ 45 days (managers/senior specialists). Source: SHRM Talent Acquisition Benchmarking Report.</p>
             </div>
           </div>
 
+          <!-- Q4 -->
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>How do I demonstrate the ROI of a training initiative?</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>How do I demonstrate the ROI of a training initiative?</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
-              <p><strong>L&D ROI Model (Kirkpatrick + Phillips):</strong></p>
+              <p><strong>Modelo de ROI de L&D (Kirkpatrick + Phillips):</strong></p>
               <ol>
-                <li><strong>Level 1 — Reaction:</strong> Post-training survey (program NPS). Target: ≥ 70.</li>
-                <li><strong>Level 2 — Learning:</strong> Pre-test vs. post-test. Target: ≥ 20 pp gain.</li>
-                <li><strong>Level 3 — Behavior:</strong> Manager assessment 90 days later. Use <em>fato_Avaliacoes</em> with <em>Survey_Type = 'Post_Training'</em>.</li>
-                <li><strong>Level 4 — Result:</strong> Turnover reduction, productivity increase, error rate drop — measurable in already-tracked KPIs.</li>
+                <li><strong>Level 1 — Reação:</strong> Pesquisa pós-treinamento (NPS do programa). Meta: ≥ 70.</li>
+                <li><strong>Level 2 — Aprendizado:</strong> Pré-teste vs. pós-teste. Meta: ganho ≥ 20 pontos percentuais.</li>
+                <li><strong>Level 3 — Comportamento:</strong> Avaliação 90 dias depois pelo gestor. Use <em>fato_Avaliacoes</em> com <em>Tipo_Avaliacao = 'Pos_Treinamento'</em>.</li>
+                <li><strong>Level 4 — Resultado:</strong> Reduções em turnover, aumento em produtividade, queda em erros operacionais — mensuráveis em KPIs já rastreados.</li>
               </ol>
-              <div class="formula-box"><div class="formula-label">Formula — Training ROI</div><pre><code>ROI (%) = ((Net Benefit - Total Program Cost) / Total Program Cost) × 100
+              <div class="formula-box">
+                <div class="formula-label">Formula — Training ROI</div>
+                <pre><code>ROI (%) = ((Benefício Líquido - Custo Total do Programa) / Custo Total do Programa) × 100
 
-Example:
-  Leadership program cost: $80,000
-  Turnover reduction (3 avoided exits × $40,000 avg replacement cost):
-      Benefit = 3 × $40,000 = $120,000
-  ROI = ((120,000 - 80,000) / 80,000) × 100 = 50%</code></pre></div>
-              <p><strong>Tip:</strong> Use 50% of annual salary as the conservative replacement cost estimate (vs. 200% for senior roles). The argument is stronger when the "pessimistic" scenario still justifies the investment.</p>
+Exemplo:
+  Custo do programa de liderança: R$ 80.000
+  Redução de turnover de gestores (3 saídas evitadas × R$ 40.000 custo médio de substituição):
+      Benefício = 3 × R$ 40.000 = R$ 120.000
+  ROI = ((120.000 - 80.000) / 80.000) × 100 = 50%</code></pre>
+              </div>
+              <p><strong>Tip:</strong> Replacement cost ranges from 50% (operational roles) to 200% (technical/management) of annual salary. Use the conservative 50% for ROI calculations — the argument is stronger when the "pessimistic" scenario still justifies the investment.</p>
             </div>
           </div>
 
+          <!-- Q5 -->
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>Absenteeism in our production floor is at 8% — what do we do?</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>Absenteeism in our production floor is at 8% — what do we do?</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
               <p><strong>First, classify the absenteeism:</strong></p>
               <table class="benchmark-table">
                 <thead><tr><th>Type</th><th>Typical cause</th><th>Intervention</th></tr></thead>
                 <tbody>
-                  <tr><td>Medical (doctor's note)</td><td>Illness, accidents, ergonomics</td><td>Health program, ergonomics assessment</td></tr>
+                  <tr><td>Medical (doctor's note)</td><td>Illness, accidents, ergonomics</td><td>Health program, occupational health, ergonomics assessment</td></tr>
                   <tr><td>Unexcused</td><td>Disengagement, manager conflict</td><td>Structured conversation (SBI-E), development plan</td></tr>
                   <tr><td>Legal leave</td><td>Maternity, paternity, jury duty</td><td>Coverage planning — not a problem</td></tr>
                   <tr><td>Recurring Mon/Fri pattern</td><td>Hidden presenteeism</td><td>Engagement survey, workload analysis</td></tr>
                 </tbody>
               </table>
+              <div class="formula-box">
+                <div class="formula-label">Excel — Absenteeism by shift and type</div>
+                <pre><code>=MÉDIASES(
+    Dados[Taxa_Absenteismo],
+    Dados[Departamento], "Produção",
+    Dados[Turno],        "Noturno",
+    Dados[Tipo_Falta],   "Médico"
+)
+-- Repita para cada combinação de turno × tipo de falta
+-- para identificar onde se concentra o problema</code></pre>
+              </div>
               <p><strong>Benchmark:</strong> Healthy absenteeism ≤ 3.5% (AIHR). 3.5–6% is a watch zone; above 6% requires a formal action plan with HR and occupational health.</p>
               <p><strong>Caution:</strong> High absenteeism in production often indicates work accidents or inadequate ergonomics — involve occupational health before treating it as a disciplinary matter.</p>
             </div>
           </div>
 
+          <!-- Q6 -->
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>How do I present People Analytics to the CEO without losing the thread?</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>How do I present People Analytics to the CEO without losing the thread?</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
               <p><strong>The 3-slide rule for People Analytics at C-level:</strong></p>
               <ol>
                 <li><strong>Slide 1 — Current situation:</strong> 3 KPIs maximum with benchmark context. E.g.: "Turnover 18% (benchmark: 12%). Estimated cost: $800K/year."</li>
                 <li><strong>Slide 2 — Root cause:</strong> One chart with the most relevant segmentation. E.g.: "72% of exits occur in the first 12 months and concentrate in 3 managers."</li>
-                <li><strong>Slide 3 — Action proposal with ROI:</strong> "Structured onboarding program + coaching for the 3 managers. Cost: $40K. Expected 30% reduction in early turnover = $240K saved."</li>
+                <li><strong>Slide 3 — Action proposal with ROI:</strong> "Structured onboarding + coaching for the 3 managers. Cost: $40K. Expected 30% reduction in early turnover = $240K saved."</li>
               </ol>
-              <div class="info-box" style="margin-top:12px"><strong>Executive meeting opener template:</strong><br><em>"We have a $[X]/year problem. The primary cause is [Y]. Proposed solution requiring $[Z] investment with an expected return of [ROI%] in [timeframe]."</em></div>
+              <p><strong>Avoid:</strong> Dashboards with 15 KPIs, percentages without benchmark context, and recommendations without cost/benefit estimates. CEOs decide based on financial impact — always translate.</p>
+              <div class="info-box" style="margin-top:12px">
+                <strong>Executive meeting opener template:</strong><br>
+                <em>"We have a $[X]/year problem. The primary cause is [Y]. Proposed solution requiring $[Z] with an expected return of [ROI%] in [timeframe]."</em>
+              </div>
             </div>
           </div>
 
+          <!-- Q7 -->
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>How do I calculate the true cost of a bad hire?</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>How do I calculate the true cost of a bad hire?</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
+              <p><strong>Components of a bad hire cost:</strong></p>
               <table class="benchmark-table">
                 <thead><tr><th>Component</th><th>Typical estimate</th></tr></thead>
                 <tbody>
-                  <tr><td>Recruitment cost (CPH)</td><td>$3,000–15,000</td></tr>
+                  <tr><td>Recruitment cost (CPH)</td><td>R$ 3.000–15.000</td></tr>
                   <tr><td>Onboarding and initial training</td><td>1–3 months of salary</td></tr>
                   <tr><td>Lost productivity (ramp-up)</td><td>3–6 months of salary</td></tr>
                   <tr><td>Team impact (morale, rework)</td><td>20–30% of team output for 1–3 months</td></tr>
@@ -1034,95 +1215,148 @@ Example:
                   <tr><td><strong>Conservative total</strong></td><td><strong>1.5× to 3× annual salary</strong></td></tr>
                 </tbody>
               </table>
+              <div class="formula-box">
+                <div class="formula-label">Estimativa rápida</div>
+                <pre><code>Custo de Contratação Mal Feita =
+    CPH
+    + (Salário_Mensal × Meses_Treinamento)
+    + (Salário_Mensal × Meses_Produtividade_Perdida × 0.5)
+    + CPH  -- novo processo seletivo
+
+Exemplo (Analista Sênior, salário R$ 8.000/mês):
+    CPH = R$ 6.000
+    Treinamento = 8.000 × 2 = R$ 16.000
+    Produtividade = 8.000 × 4 × 0.5 = R$ 16.000
+    Nova busca = R$ 6.000
+    TOTAL = R$ 44.000 (≈ 5,5 salários mensais)</code></pre>
+              </div>
+              <p>Use this number to justify Quality of Hire investment: a more rigorous process costing $5K more but avoiding a bad hire worth $44K has an ROI of 780%.</p>
             </div>
           </div>
 
+          <!-- Q8 -->
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>Our eNPS dropped 15 points — how do we investigate and act?</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>Our eNPS dropped 15 points — how do we investigate and act?</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
               <p><strong>eNPS drop investigation protocol:</strong></p>
               <ol>
-                <li><strong>Segment before acting:</strong> Is the drop widespread or concentrated in a specific area/level/manager?</li>
-                <li><strong>Cross with quantitative data:</strong> Did turnover or absenteeism rise in the same period? Correlations confirm or rule out hypotheses.</li>
-                <li><strong>Focus groups with (anonymized) detractors:</strong> eNPS measures intensity, not reason. Use qualitative interviews with a representative sample.</li>
+                <li><strong>Segment before acting:</strong> Is the drop widespread or concentrated in a specific area/level/manager? A 15-point company-wide drop can be 40 points in one area and 0 in others.</li>
+                <li><strong>Cross with quantitative data:</strong> Did turnover or absenteeism rise, or performance drop in the same period? Correlations confirm or rule out hypotheses.</li>
+                <li><strong>Focus groups with (anonymized) detractors:</strong> eNPS measures intensity, not reason. Use qualitative interviews with a representative sample (6–8 people) to understand the "why".</li>
                 <li><strong>30-day action plan:</strong> Communicate to the organization that data was analyzed and a plan exists. Silence after a survey is one of the biggest HR trust destroyers.</li>
               </ol>
-              <div class="formula-box"><div class="formula-label">DAX — eNPS variation vs. previous period</div><pre><code>eNPS Current =
-VAR base  = FILTER(fato_Avaliacoes, fato_Avaliacoes[Survey_Type] = "Climate")
+              <div class="formula-box">
+                <div class="formula-label">DAX — eNPS variation vs. previous period</div>
+                <pre><code>eNPS Atual =
+VAR base  = FILTER(fato_Avaliacoes, fato_Avaliacoes[Tipo_Avaliacao] = "Clima_Organizacional")
 VAR total = COUNTROWS(base)
-VAR prom  = COUNTROWS(FILTER(base, fato_Avaliacoes[eNPS_Score] >= 9))
-VAR det   = COUNTROWS(FILTER(base, fato_Avaliacoes[eNPS_Score] <= 6))
+VAR prom  = COUNTROWS(FILTER(base, fato_Avaliacoes[Nota_eNPS] >= 9))
+VAR det   = COUNTROWS(FILTER(base, fato_Avaliacoes[Nota_eNPS] <= 6))
 RETURN DIVIDE(prom - det, total, 0) * 100
 
-eNPS Previous Period =
-CALCULATE([eNPS Current], DATEADD(dim_dCalendario[Date], -6, MONTH))
+eNPS Período Anterior =
+CALCULATE([eNPS Atual], DATEADD(dim_dCalendario[Date], -6, MONTH))
 
-eNPS Change = [eNPS Current] - [eNPS Previous Period]</code></pre></div>
+Variação eNPS = [eNPS Atual] - [eNPS Período Anterior]</code></pre>
+              </div>
               <p><strong>Action benchmarks:</strong> eNPS ≥ 30 = healthy; 0–29 = improvement zone; below 0 = critical — immediate action required.</p>
             </div>
           </div>
 
-        </div>
+        </div><!-- /.qa-list -->
       </section>
 
-      <!-- ========== MODULE 4: PIPELINE & TOOLS ========== -->
+      <!-- ========== MÓDULO 4: PIPELINE & FERRAMENTAS ========== -->
       <section id="modulo4" class="module-section">
         <div class="module-header">
           <div class="module-badge">Module 4</div>
           <h2>Pipeline &amp; Tools</h2>
-          <p>From data collection to insight: People Analytics data architecture</p>
+          <p>Da coleta ao insight: arquitetura de dados para People Analytics</p>
         </div>
 
         <div class="pipeline-diagram">
-          <div class="pipeline-step"><div class="pipeline-icon">📥</div><div class="pipeline-label">Sources</div><div class="pipeline-sublabel">HRIS, ATS, LMS, Engagement Survey, Payroll</div></div>
+          <div class="pipeline-step">
+            <div class="pipeline-icon">📥</div>
+            <div class="pipeline-label">Sources</div>
+            <div class="pipeline-sublabel">HRIS, ATS, LMS, Engagement Survey, Payroll</div>
+          </div>
           <div class="pipeline-arrow">→</div>
-          <div class="pipeline-step"><div class="pipeline-icon">⚙️</div><div class="pipeline-label">ETL / ELT</div><div class="pipeline-sublabel">Python, dbt, Power Query</div></div>
+          <div class="pipeline-step">
+            <div class="pipeline-icon">⚙️</div>
+            <div class="pipeline-label">ETL / ELT</div>
+            <div class="pipeline-sublabel">Python, dbt, Power Query</div>
+          </div>
           <div class="pipeline-arrow">→</div>
-          <div class="pipeline-step"><div class="pipeline-icon">🗄️</div><div class="pipeline-label">Data Warehouse</div><div class="pipeline-sublabel">Azure Synapse, BigQuery, Databricks</div></div>
+          <div class="pipeline-step">
+            <div class="pipeline-icon">🗄️</div>
+            <div class="pipeline-label">Data Warehouse</div>
+            <div class="pipeline-sublabel">Azure Synapse, BigQuery, Databricks</div>
+          </div>
           <div class="pipeline-arrow">→</div>
-          <div class="pipeline-step"><div class="pipeline-icon">📊</div><div class="pipeline-label">Visualization</div><div class="pipeline-sublabel">Power BI, Tableau, Looker</div></div>
+          <div class="pipeline-step">
+            <div class="pipeline-icon">📊</div>
+            <div class="pipeline-label">Visualization</div>
+            <div class="pipeline-sublabel">Power BI, Tableau, Looker</div>
+          </div>
           <div class="pipeline-arrow">→</div>
-          <div class="pipeline-step"><div class="pipeline-icon">💡</div><div class="pipeline-label">Decision</div><div class="pipeline-sublabel">HRBP, Leadership, C-Level</div></div>
+          <div class="pipeline-step">
+            <div class="pipeline-icon">💡</div>
+            <div class="pipeline-label">Decision</div>
+            <div class="pipeline-sublabel">HRBP, Liderança, C-Level</div>
+          </div>
         </div>
 
+        <!-- Tabs de ferramentas -->
         <div class="tab-container">
           <div class="tab-header">
-            <button class="tab-btn active" onclick="switchTab(event,'en-tab-pbi')">Power BI</button>
-            <button class="tab-btn" onclick="switchTab(event,'en-tab-py')">Python</button>
-            <button class="tab-btn" onclick="switchTab(event,'en-tab-sql')">SQL</button>
-            <button class="tab-btn" onclick="switchTab(event,'en-tab-xl')">Excel</button>
+            <button class="tab-btn active" onclick="switchTab(event,'tab-powerbi')">Power BI</button>
+            <button class="tab-btn" onclick="switchTab(event,'tab-python')">Python</button>
+            <button class="tab-btn" onclick="switchTab(event,'tab-sql')">SQL</button>
+            <button class="tab-btn" onclick="switchTab(event,'tab-excel')">Excel</button>
           </div>
 
-          <div id="en-tab-pbi" class="tab-content active">
+          <!-- Power BI -->
+          <div id="tab-powerbi" class="tab-content active">
             <h3 style="margin-bottom:12px">Power BI — Semantic Model Setup</h3>
-            <div class="formula-box"><div class="formula-label">Recommended table structure</div><pre><code>-- Facts (event/transaction data)
-fato_Historico   → One record per event (hire, termination, promotion, transfer)
-fato_Avaliacoes  → One record per assessment (performance, climate, eNPS, post-training)
+            <p>The recommended star schema for People Analytics in Power BI:</p>
+            <div class="formula-box">
+              <div class="formula-label">Recommended table structure</div>
+              <pre><code>-- Facts (event/transações)
+fato_Historico      → One record per event (hire, termination, promotion, transfer)
+fato_Avaliacoes     → One record per assessment (performance, climate, eNPS, post-training)
 
 -- Dimensions (descriptive data)
-dim_Colaboradores → One record per employee (current state)
-dim_Vagas         → One record per open requisition
-dim_dCalendario   → One row per day (generated via DAX or Power Query)
+dim_Colaboradores   → One record per employee (current state)
+dim_Vagas           → One record per open requisition
+dim_dCalendario     → One row per day (generated via DAX or Power Query)
 
 -- Relationships
-dim_dCalendario[Date]          → fato_Historico[Event_Date]       (1:N)
-dim_dCalendario[Date]          → fato_Avaliacoes[Assessment_Date]  (1:N)
-dim_Colaboradores[Employee_ID] → fato_Historico[Employee_ID]      (1:N)
-dim_Colaboradores[Employee_ID] → fato_Avaliacoes[Employee_ID]     (1:N)</code></pre></div>
-            <div class="formula-box"><div class="formula-label">DAX — Calendar Table</div><pre><code>dim_dCalendario =
-VAR StartDate = DATE(2020, 1, 1)
-VAR EndDate   = TODAY()
+dim_dCalendario[Date]        → fato_Historico[Data_Evento]     (1:N)
+dim_dCalendario[Date]        → fato_Avaliacoes[Data_Avaliacao]  (1:N)
+dim_Colaboradores[ID_Colaborador] → fato_Historico[ID_Colaborador] (1:N)
+dim_Colaboradores[ID_Colaborador] → fato_Avaliacoes[ID_Colaborador] (1:N)</code></pre>
+            </div>
+            <div class="formula-box">
+              <div class="formula-label">DAX — Calendar Table</div>
+              <pre><code>dim_dCalendario =
+VAR DataInicio = DATE(2020, 1, 1)
+VAR DataFim    = TODAY()
 RETURN
 ADDCOLUMNS(
-    CALENDAR(StartDate, EndDate),
-    "Year",      YEAR([Date]),
-    "Month",     MONTH([Date]),
-    "MonthName", FORMAT([Date], "MMMM"),
-    "Quarter",   "Q" & QUARTER([Date]),
-    "YearMonth", FORMAT([Date], "YYYY-MM"),
-    "Weekday",   WEEKDAY([Date], 2)  -- 1=Mon, 7=Sun
-)</code></pre></div>
-            <div class="info-box"><strong>Power BI best practices for People Analytics:</strong>
+    CALENDAR(DataInicio, DataFim),
+    "Ano",         YEAR([Date]),
+    "Mês",         MONTH([Date]),
+    "NomeMês",     FORMAT([Date], "MMMM"),
+    "Trimestre",   "T" & QUARTER([Date]),
+    "AnoMês",      FORMAT([Date], "YYYY-MM"),
+    "DiaSemana",   WEEKDAY([Date], 2)  -- 1=Mon, 7=Sun
+)</code></pre>
+            </div>
+            <div class="info-box">
+              <strong>Power BI best practices for People Analytics:</strong>
               <ul style="margin-top:8px">
                 <li>Use RLS (Row-Level Security) so managers only see their team's data</li>
                 <li>Create a dedicated measures table (<em>_Measures</em>) to organize KPIs</li>
@@ -1132,129 +1366,175 @@ ADDCOLUMNS(
             </div>
           </div>
 
-          <div id="en-tab-py" class="tab-content">
+          <!-- Python -->
+          <div id="tab-python" class="tab-content">
             <h3 style="margin-bottom:12px">Python — ETL Pipeline for People Analytics</h3>
-            <div class="formula-box"><div class="formula-label">people_analytics_pipeline.py — Full skeleton</div><pre><code>import pandas as pd
+            <div class="formula-box">
+              <div class="formula-label">people_analytics_pipeline.py — Full skeleton</div>
+              <pre><code>import pandas as pd
 from datetime import date
 
-# ── 1. EXTRACT ────────────────────────────────────────────────
-def extract_data(excel_path: str) -> dict[str, pd.DataFrame]:
+# ── 1. EXTRACT ──────────────────────────────────────────────
+def extrair_dados(caminho_excel: str) -> dict[str, pd.DataFrame]:
     """Reads all sheets from the HR workbook."""
     return pd.read_excel(
-        excel_path,
-        sheet_name=["Employees", "History", "Assessments", "Reqs"],
+        caminho_excel,
+        sheet_name=["Colaboradores", "Historico", "Avaliacoes", "Vagas"],
         parse_dates=True
     )
 
-# ── 2. TRANSFORM ──────────────────────────────────────────────
-def calculate_kpis(data: dict) -> pd.DataFrame:
-    today = pd.Timestamp(date.today())
-    col   = data["Employees"]
-    hist  = data["History"]
-    aval  = data["Assessments"]
+# ── 2. TRANSFORM ─────────────────────────────────────────
+def calcular_kpis(dados: dict) -> pd.DataFrame:
+    hoje = pd.Timestamp(date.today())
+    col  = dados["Colaboradores"]
+    hist = dados["Historico"]
+    aval = dados["Avaliacoes"]
 
-    hc_current = col[col["Status"] == "Active"].shape[0]
-    year = today.year
-    exits = hist[
-        (hist["Event_Type"] == "Termination") &
-        (hist["Event_Date"].dt.year == year)
+    # Headcount atual
+    hc_atual = col[col["Status"] == "Ativo"].shape[0]
+
+    # Turnover Rate (período: ano corrente)
+    ano_atual = hoje.year
+    saidas = hist[
+        (hist["Tipo_Evento"] == "Desligamento") &
+        (hist["Data_Evento"].dt.year == ano_atual)
     ].shape[0]
-    hc_start = col[col["Hire_Date"].dt.year < year].shape[0]
-    avg_hc   = (hc_start + hc_current) / 2
-    turnover = round((exits / avg_hc * 100), 2) if avg_hc > 0 else 0
 
-    climate = aval[aval["Survey_Type"] == "Climate"]
-    total   = len(climate)
-    prom    = (climate["eNPS_Score"] >= 9).sum()
-    det     = (climate["eNPS_Score"] <= 6).sum()
-    enps    = round(((prom - det) / total * 100), 2) if total > 0 else 0
+    hc_inicio = col[col["Data_Admissao"].dt.year < ano_atual].shape[0]
+    hc_medio  = (hc_inicio + hc_atual) / 2
+    turnover  = round((saidas / hc_medio * 100), 2) if hc_medio > 0 else 0
+
+    # eNPS
+    clima = aval[aval["Tipo_Avaliacao"] == "Clima_Organizacional"]
+    total = len(clima)
+    prom  = (clima["Nota_eNPS"] >= 9).sum()
+    det   = (clima["Nota_eNPS"] <= 6).sum()
+    enps  = round(((prom - det) / total * 100), 2) if total > 0 else 0
 
     return pd.DataFrame([{
-        "Date": today.date(), "HC_Current": hc_current,
-        "Turnover_Pct": turnover, "eNPS": enps
+        "Data":          hoje.date(),
+        "HC_Atual":      hc_atual,
+        "Turnover_Pct":  turnover,
+        "eNPS":          enps
     }])
 
-# ── 3. LOAD ───────────────────────────────────────────────────
-def save_results(df: pd.DataFrame, dest: str) -> None:
-    df.to_excel(dest, index=False)
-    print(f"KPIs saved to: {dest}")
+# ── 3. LOAD ─────────────────────────────────────────────────
+def salvar_resultado(df: pd.DataFrame, destino: str) -> None:
+    df.to_excel(destino, index=False)
+    print(f"KPIs saved to: {destino}")
 
+# ── RUN ─────────────────────────────────────────────────
 if __name__ == "__main__":
-    data = extract_data("workforce.xlsx")
-    kpis = calculate_kpis(data)
-    save_results(kpis, "kpis_people_analytics.xlsx")</code></pre></div>
+    dados   = extrair_dados("workforce.xlsx")
+    kpis    = calcular_kpis(dados)
+    salvar_resultado(kpis, "kpis_people_analytics.xlsx")</code></pre>
+            </div>
           </div>
 
-          <div id="en-tab-sql" class="tab-content">
+          <!-- SQL -->
+          <div id="tab-sql" class="tab-content">
             <h3 style="margin-bottom:12px">SQL — Reference Queries for People Analytics</h3>
-            <div class="formula-box"><div class="formula-label">Consolidated monthly KPI view</div><pre><code>CREATE VIEW vw_people_analytics_kpis AS
+            <div class="formula-box">
+              <div class="formula-label">Consolidated monthly KPI view</div>
+              <pre><code>CREATE VIEW vw_kpis_people_analytics AS
 WITH
-  hc_monthly AS (
-    SELECT strftime('%Y-%m', Event_Date) AS year_month,
-           COUNT(DISTINCT Employee_ID)   AS hc
+  -- Monthly headcount
+  hc_mensal AS (
+    SELECT
+      strftime('%Y-%m', Data_Evento) AS ano_mes,
+      COUNT(DISTINCT ID_Colaborador)  AS hc
     FROM fato_Historico
-    WHERE Event_Type IN ('Hire','Active')
+    WHERE Tipo_Evento IN ('Admissao','Ativo')
     GROUP BY 1
   ),
-  exits_monthly AS (
-    SELECT strftime('%Y-%m', Event_Date) AS year_month,
-           COUNT(*)                       AS exits,
-           SUM(CASE WHEN Reason = 'Voluntary' THEN 1 ELSE 0 END) AS vol_exits
+  -- Monthly exits
+  saidas_mensais AS (
+    SELECT
+      strftime('%Y-%m', Data_Evento) AS ano_mes,
+      COUNT(*)                        AS saidas,
+      SUM(CASE WHEN Motivo = 'Voluntário' THEN 1 ELSE 0 END) AS saidas_voluntarias
     FROM fato_Historico
-    WHERE Event_Type = 'Termination'
+    WHERE Tipo_Evento = 'Desligamento'
     GROUP BY 1
   ),
-  enps_monthly AS (
-    SELECT strftime('%Y-%m', Assessment_Date) AS year_month,
-           ROUND(
-             (SUM(CASE WHEN eNPS_Score >= 9 THEN 1.0 ELSE 0 END)
-             -SUM(CASE WHEN eNPS_Score <= 6 THEN 1.0 ELSE 0 END))
-             / COUNT(*) * 100, 2) AS enps
+  -- Monthly eNPS
+  enps_mensal AS (
+    SELECT
+      strftime('%Y-%m', Data_Avaliacao) AS ano_mes,
+      ROUND(
+        (SUM(CASE WHEN Nota_eNPS >= 9 THEN 1.0 ELSE 0 END) -
+         SUM(CASE WHEN Nota_eNPS <= 6 THEN 1.0 ELSE 0 END))
+        / COUNT(*) * 100, 2
+      ) AS enps
     FROM fato_Avaliacoes
-    WHERE Survey_Type = 'Climate'
+    WHERE Tipo_Avaliacao = 'Clima_Organizacional'
     GROUP BY 1
   )
-SELECT h.year_month, h.hc AS headcount, s.exits,
-       ROUND(s.exits * 100.0 / h.hc, 2)           AS turnover_pct,
-       ROUND(s.vol_exits * 100.0 / h.hc, 2)       AS vol_turnover_pct,
-       e.enps
-FROM hc_monthly h
-LEFT JOIN exits_monthly s ON h.year_month = s.year_month
-LEFT JOIN enps_monthly  e ON h.year_month = e.year_month
-ORDER BY h.year_month;</code></pre></div>
-          </div>
-
-          <div id="en-tab-xl" class="tab-content">
-            <h3 style="margin-bottom:12px">Excel — People Analytics Dashboard (no code)</h3>
-            <div class="info-box"><strong>Recommended sheet structure:</strong><br>
-              <code>Employee_Data</code> | <code>History_Data</code> | <code>Assessment_Data</code> | <code>Req_Data</code> | <code>Calculated_KPIs</code> | <code>Dashboard</code>
+SELECT
+  h.ano_mes,
+  h.hc                                              AS headcount,
+  s.saidas,
+  ROUND(s.saidas * 100.0 / h.hc, 2)                AS turnover_pct,
+  ROUND(s.saidas_voluntarias * 100.0 / h.hc, 2)    AS vol_turnover_pct,
+  e.enps
+FROM hc_mensal h
+LEFT JOIN saidas_mensais s ON h.ano_mes = s.ano_mes
+LEFT JOIN enps_mensal    e ON h.ano_mes = e.ano_mes
+ORDER BY h.ano_mes;</code></pre>
             </div>
-            <div class="formula-box"><div class="formula-label">Key formulas in Calculated_KPIs sheet</div><pre><code>=COUNTIF(Employee_Data[Status],"Active")  -- Current headcount
-
--- Turnover Rate
-=COUNTIFS(
-    History_Data[Event_Type],"Termination",
-    History_Data[Event_Date],">="&DATE(YEAR(TODAY()),1,1),
-    History_Data[Event_Date],"<="&TODAY()
-) / ((B2+B1)/2) * 100
-
--- eNPS
-=(COUNTIFS(Assessment_Data[Survey_Type],"Climate",Assessment_Data[eNPS_Score],">="&9)
- -COUNTIFS(Assessment_Data[Survey_Type],"Climate",Assessment_Data[eNPS_Score],"<="&6))
-/ COUNTIF(Assessment_Data[Survey_Type],"Climate") * 100
-
--- Average Time to Fill
-=AVERAGEIFS(Req_Data[Time_to_Fill], Req_Data[Closure_Reason],"Hire")</code></pre></div>
-            <div class="tip-box"><strong>Excel automation tip:</strong> Use <em>Power Query</em> to refresh data automatically when the file opens — go to Data → Get Data → From File → From Excel. The dashboard updates without manual copy-paste.</div>
           </div>
-        </div>
 
+          <!-- Excel -->
+          <div id="tab-excel" class="tab-content">
+            <h3 style="margin-bottom:12px">Excel — People Analytics Dashboard (no code)</h3>
+            <div class="info-box">
+              <strong>Recommended sheet structure:</strong><br>
+              <code>Dados_Colaboradores</code> | <code>Dados_Historico</code> | <code>Dados_Avaliacoes</code> | <code>Dados_Vagas</code> | <code>KPIs_Calculados</code> | <code>Dashboard</code>
+            </div>
+            <div class="formula-box">
+              <div class="formula-label">Key formulas in Calculated_KPIs sheet</div>
+              <pre><code>-- Current headcount (coluna B = Status)
+=CONT.SE(Dados_Colaboradores[Status],"Ativo")
+
+-- Turnover Rate (col C = Tipo_Evento, coluna E = Data_Evento)
+=CONT.SES(
+    Dados_Historico[Tipo_Evento], "Desligamento",
+    Dados_Historico[Data_Evento], ">="&DATA(ANO(HOJE()),1,1),
+    Dados_Historico[Data_Evento], "<="&HOJE()
+) / ((B2 + B1) / 2) * 100
+-- B2 = current HC; B1 = HC start of year (calculado separado)
+
+-- eNPS (coluna F = Nota_eNPS, coluna G = Tipo_Avaliacao)
+=(CONT.SES(Dados_Avaliacoes[Tipo_Avaliacao],"Clima_Organizacional",
+           Dados_Avaliacoes[Nota_eNPS],">="&9)
+ -CONT.SES(Dados_Avaliacoes[Tipo_Avaliacao],"Clima_Organizacional",
+           Dados_Avaliacoes[Nota_eNPS],"<="&6))
+/ CONT.SE(Dados_Avaliacoes[Tipo_Avaliacao],"Clima_Organizacional")
+* 100
+
+-- Average Time to Fill (days)
+=MÉDIASES(
+    Dados_Vagas[Time_to_Fill],
+    Dados_Vagas[Closure_Reason], "Contratação"
+)</code></pre>
+            </div>
+            <div class="tip-box">
+              <strong>Excel automation tip:</strong> Use <em>Power Query</em> to refresh data automatically when the file opens — go to Data → Get Data → From File → From Excel. The dashboard updates without manual copy-paste.
+            </div>
+          </div>
+        </div><!-- /.tab-container -->
+
+        <!-- Desafios práticos -->
         <h3 style="margin:32px 0 16px">Practical Challenges</h3>
         <div class="qa-list">
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>Challenge 1 — Turnover Diagnosis</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>Challenge 1 — Turnover Diagnosis</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
-              <p><strong>Scenario:</strong> The company has a Turnover Rate of 22% (benchmark: 12%). The CEO requested a diagnosis in 1 week.</p>
+              <p><strong>Cenário:</strong> The company has a Turnover Rate of 22% (benchmark: 12%). The CEO requested a diagnosis in 1 week.</p>
+              <p><strong>Tarefas:</strong></p>
               <ol>
                 <li>Calculate Voluntary Turnover separately from total</li>
                 <li>Segment by department, manager, and tenure band</li>
@@ -1262,26 +1542,35 @@ ORDER BY h.year_month;</code></pre></div>
                 <li>Estimate the financial cost of current turnover</li>
                 <li>Build a 3-slide presentation: situation, root cause, action proposal</li>
               </ol>
+              <p><strong>Dados sugeridos:</strong> Use sample files in <code>workforce.xlsx</code> (create with dummy data if needed).</p>
             </div>
           </div>
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>Challenge 2 — eNPS Dashboard in Power BI</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>Challenge 2 — eNPS Dashboard in Power BI</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
-              <p><strong>Scenario:</strong> The last engagement survey brought 850 responses on a 0–10 scale. Build a Power BI dashboard showing:</p>
+              <p><strong>Cenário:</strong> The last engagement survey brought 850 responses on a 0–10 scale. Build a Power BI dashboard showing:</p>
               <ol>
                 <li>Overall eNPS + change vs. previous survey</li>
                 <li>Promoters / Neutrals / Detractors distribution in a stacked bar chart</li>
                 <li>eNPS by department in a heatmap (conditional formatting: red/yellow/green)</li>
                 <li>Top 3 critical departments with drill-through to anonymized detractor list</li>
               </ol>
+              <p><strong>Medidas DAX necessárias:</strong> <code>eNPS Atual</code>, <code>eNPS Período Anterior</code>, <code>Variação eNPS</code>, <code>% Promotores</code>, <code>% Detratores</code>, <code>% Neutros</code>.</p>
             </div>
           </div>
           <div class="qa-item">
-            <div class="qa-question" onclick="toggleQA(this)"><span>Challenge 3 — Flight Risk Model in Python</span><span class="qa-toggle">+</span></div>
+            <div class="qa-question" onclick="toggleQA(this)">
+              <span>Challenge 3 — Flight Risk Model in Python</span>
+              <span class="qa-toggle">+</span>
+            </div>
             <div class="qa-answer">
-              <p><strong>Scenario:</strong> The CHRO wants a monthly list of the 20 highest flight-risk employees for proactive "stay interviews" by HRBPs.</p>
+              <p><strong>Cenário:</strong> The CHRO wants a monthly list of the 20 highest flight-risk employees for proactive stay interviews by HRBPs.</p>
+              <p><strong>Tarefas:</strong></p>
               <ol>
-                <li>Implement the Flight Risk Score with the 5 signals from Module 3</li>
+                <li>Implemente o modelo de Flight Risk Score com os 5 sinais descritos no Module 3</li>
                 <li>Add a 6th signal: employees whose manager left in the past 3 months</li>
                 <li>Generate an Excel report with the top 20 + a "recommended action" column based on the dominant signal</li>
                 <li>Document the criteria and include an ethics/privacy disclaimer in the report header</li>
@@ -1301,27 +1590,38 @@ ORDER BY h.year_month;</code></pre></div>
 
         <div class="roadmap-grid">
           <div class="roadmap-phase">
-            <div class="roadmap-phase-header phase-q1"><span class="roadmap-quarter">Q1</span><span class="roadmap-phase-title">Data Foundation</span></div>
+            <div class="roadmap-phase-header phase-q1">
+              <span class="roadmap-quarter">Q1</span>
+              <span class="roadmap-phase-title">Data Foundation</span>
+            </div>
             <ul class="roadmap-items">
               <li>Audit existing data sources (HRIS, spreadsheets, ATS)</li>
-              <li>Define star schema data model</li>
-              <li>Implement the 5 base tables in Power BI or DW</li>
+              <li>Define the star schema data model</li>
+              <li>Implement the 5 base tables in Power BI or Data Warehouse</li>
               <li>Headcount and turnover dashboard (maturity level 1)</li>
-              <li>HR team training on Power BI basics</li>
+              <li>HR team training on basic Power BI</li>
             </ul>
           </div>
+
           <div class="roadmap-phase">
-            <div class="roadmap-phase-header phase-q2"><span class="roadmap-quarter">Q2</span><span class="roadmap-phase-title">Operational KPIs</span></div>
+            <div class="roadmap-phase-header phase-q2">
+              <span class="roadmap-quarter">Q2</span>
+              <span class="roadmap-phase-title">Operational KPIs</span>
+            </div>
             <ul class="roadmap-items">
-              <li>Implement all 10 core KPIs (Module 2) with benchmarks</li>
+              <li>Implementação dos 10 KPIs core (Module 2) com benchmarks</li>
               <li>ATS integration for automated TTF and CPH</li>
               <li>Digital eNPS survey with automatic export to model</li>
               <li>Automated monthly report to leadership (Power BI scheduled)</li>
               <li>Define data quality SLAs</li>
             </ul>
           </div>
+
           <div class="roadmap-phase">
-            <div class="roadmap-phase-header phase-q3"><span class="roadmap-quarter">Q3</span><span class="roadmap-phase-title">Predictive Analytics</span></div>
+            <div class="roadmap-phase-header phase-q3">
+              <span class="roadmap-quarter">Q3</span>
+              <span class="roadmap-phase-title">Predictive Analytics</span>
+            </div>
             <ul class="roadmap-items">
               <li>Flight Risk Score model (Python + Power BI)</li>
               <li>Employee segmentation by risk and potential</li>
@@ -1330,8 +1630,12 @@ ORDER BY h.year_month;</code></pre></div>
               <li>HRBP training on reading and using predictive models</li>
             </ul>
           </div>
+
           <div class="roadmap-phase">
-            <div class="roadmap-phase-header phase-q4"><span class="roadmap-quarter">Q4</span><span class="roadmap-phase-title">Strategy &amp; ROI</span></div>
+            <div class="roadmap-phase-header phase-q4">
+              <span class="roadmap-quarter">Q4</span>
+              <span class="roadmap-phase-title">Strategy &amp; ROI</span>
+            </div>
             <ul class="roadmap-items">
               <li>Annual People Analytics report for the Board</li>
               <li>ROI calculation for the year's People Analytics initiatives</li>
@@ -1347,22 +1651,32 @@ ORDER BY h.year_month;</code></pre></div>
         </div>
       </section>
 
-    </main>
+    </main><!-- /.main-content -->
 
+    <!-- ========== FOOTER ========== -->
     <footer style="background:#1a1a2e;color:#ccc;padding:40px 24px;text-align:center;margin-top:0">
       <div style="max-width:900px;margin:0 auto">
-        <p style="font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:8px">People Analytics Guide</p>
-        <p style="font-size:0.85rem;margin-bottom:16px">Formulas validated against SHRM · AIHR · LinkedIn Talent Trends · Michael Page references</p>
+        <p style="font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:8px">
+          People Analytics Guide
+        </p>
+        <p style="font-size:0.85rem;margin-bottom:16px">
+          Formulas validated against SHRM · AIHR · LinkedIn Talent Trends · Michael Page references
+        </p>
         <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;font-size:0.8rem;color:#888">
-          <span>Updated: 2026</span><span>|</span>
-          <span>Respect data privacy laws when processing personal data</span><span>|</span>
+          <span>Atualizado: 2026</span>
+          <span>|</span>
+          <span>Respect data privacy laws when processing personal data</span>
+          <span>|</span>
           <span>Star schema: dim_Colaboradores · dim_Vagas · fato_Historico · fato_Avaliacoes · dim_dCalendario</span>
         </div>
       </div>
     </footer>
-  </div>
 
+  </div><!-- /.app-wrapper -->
+
+  <!-- ========== JAVASCRIPT ========== -->
   <script>
+    // ── Tab switcher ─────────────────────────────────────────
     function switchTab(event, tabId) {
       const container = event.target.closest('.tab-container');
       container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1370,42 +1684,73 @@ ORDER BY h.year_month;</code></pre></div>
       event.target.classList.add('active');
       document.getElementById(tabId).classList.add('active');
     }
+
+    // ── Q&A accordion ────────────────────────────────────────
     function toggleQA(el) {
       const item   = el.closest('.qa-item');
       const answer = item.querySelector('.qa-answer');
       const toggle = el.querySelector('.qa-toggle');
       const isOpen = item.classList.contains('open');
+
       if (isOpen) {
         answer.style.maxHeight = answer.scrollHeight + 'px';
-        requestAnimationFrame(() => { answer.style.transition='max-height .3s ease'; answer.style.maxHeight='0'; });
-        item.classList.remove('open'); toggle.textContent = '+';
+        requestAnimationFrame(() => {
+          answer.style.transition = 'max-height 0.3s ease';
+          answer.style.maxHeight  = '0';
+        });
+        item.classList.remove('open');
+        toggle.textContent = '+';
       } else {
-        answer.style.maxHeight='0'; answer.style.transition='max-height .4s ease';
-        item.classList.add('open'); toggle.textContent = '×';
-        requestAnimationFrame(() => { answer.style.maxHeight = answer.scrollHeight + 'px'; });
+        answer.style.maxHeight  = '0';
+        answer.style.transition = 'max-height 0.4s ease';
+        item.classList.add('open');
+        toggle.textContent = '×';
+        requestAnimationFrame(() => {
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+        });
       }
     }
-    (function(){
+
+    // ── Active nav on scroll ──────────────────────────────────
+    (function () {
       const sections = document.querySelectorAll('.module-section');
       const navLinks = document.querySelectorAll('.nav-item');
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting)
-            navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href')==='#'+e.target.id));
-        });
-      }, { rootMargin:'-20% 0px -70% 0px', threshold:0 });
+
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              navLinks.forEach(link => {
+                link.classList.toggle(
+                  'active',
+                  link.getAttribute('href') === '#' + entry.target.id
+                );
+              });
+            }
+          });
+        },
+        { rootMargin: '-20% 0px -70% 0px', threshold: 0 }
+      );
+
       sections.forEach(s => observer.observe(s));
     })();
+
+    // ── Smooth scroll for nav links ───────────────────────────
     document.querySelectorAll('.nav-item').forEach(link => {
       link.addEventListener('click', e => {
         e.preventDefault();
-        const t = document.querySelector(link.getAttribute('href'));
-        if (t) t.scrollIntoView({ behavior:'smooth', block:'start' });
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
+
+    // ── Q&A initial state (closed) ────────────────────────────
     document.querySelectorAll('.qa-answer').forEach(a => {
-      a.style.maxHeight='0'; a.style.overflow='hidden'; a.style.transition='max-height .4s ease';
+      a.style.maxHeight  = '0';
+      a.style.overflow   = 'hidden';
+      a.style.transition = 'max-height 0.4s ease';
     });
   </script>
+
 </body>
 </html>
