@@ -132,7 +132,17 @@
       .module-section{padding:32px 20px}
       .lang-bar{top:8px;right:8px}
     }
-  </style>
+    /* ── Tooltip ───────────────────────────────────── */
+    .tip{position:relative;cursor:help;border-bottom:1px dashed rgba(255,255,255,.4);display:inline}
+    .tip::after{content:attr(data-tip);position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#0f172a;color:#e2e8f0;padding:7px 11px;border-radius:7px;font-size:.76rem;font-weight:400;line-height:1.4;white-space:normal;width:220px;text-align:center;opacity:0;pointer-events:none;transition:opacity .18s;z-index:3000;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+    .tip::before{content:'';position:absolute;bottom:105%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#0f172a;opacity:0;transition:opacity .18s;z-index:3000}
+    .tip:hover::after,.tip:hover::before{opacity:1}
+    /* tip inside light sections — dark bottom border */
+    .main-content .tip{border-bottom-color:rgba(0,0,0,.3)}
+    /* ── Sidebar sources ─────────────────────────────── */
+    .nav-sources{padding:8px 24px 0;font-size:.72rem;color:#64748b;line-height:1.8}
+    .nav-sources a{color:#64748b;text-decoration:none;transition:color .15s}
+    .nav-sources a:hover{color:#93c5fd}  </style>
 </head>
 <body>
   <div class="lang-bar">
@@ -162,12 +172,20 @@
       <a href="#kpi8"  class="nav-item">8 · Quality of Hire</a>
       <a href="#kpi9"  class="nav-item">9 · Voluntary Turnover</a>
       <a href="#kpi10" class="nav-item">10 · Time to Hire</a>
-    </nav>
+
+      <span class="nav-section">References</span>
+      <div class="nav-sources">
+        <a href="https://www.shrm.org" target="_blank" rel="noopener">SHRM</a> &nbsp;·&nbsp;
+        <a href="https://www.aihr.com" target="_blank" rel="noopener">AIHR</a> &nbsp;·&nbsp;
+        <a href="https://business.linkedin.com/talent-solutions/global-talent-trends" target="_blank" rel="noopener">LinkedIn Talent Trends</a><br>
+        <a href="https://www.michaelpage.com.br" target="_blank" rel="noopener">Michael Page</a> &nbsp;·&nbsp;
+        <a href="https://www.abrhf.org.br" target="_blank" rel="noopener">ABRHF</a>
+      </div>    </nav>
     <main class="main-content">
       <section class="hero">
         <div class="hero-badge">PEOPLE ANALYTICS · PRACTICAL GUIDE</div>
         <h1>Formulas that <span>leaders</span> actually use</h1>
-        <p>10 essential KPIs with validated formulas in Excel, DAX (Power BI), SQL and Python — benchmarks from SHRM, AIHR, LinkedIn Talent Trends and Michael Page.</p>
+        <p>10 essential KPIs with validated formulas in Excel, <span class="tip" data-tip="Data Analysis Expressions — Power BI&apos;s formula language for calculations and measures">DAX</span> (Power BI), SQL and Python — benchmarks from <span class="tip" data-tip="Society for Human Resource Management — leading global HR benchmark source">SHRM</span>, <span class="tip" data-tip="Academy to Innovate HR — European HR analytics research institute">AIHR</span>, LinkedIn Talent Trends and Michael Page.</p>
         <div class="hero-stats">
           <div class="hero-stat"><div class="hero-stat-num">10</div><div class="hero-stat-label">Core KPIs</div></div>
           <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-label">Environments</div></div>
@@ -818,13 +836,13 @@ Variação eNPS = [eNPS Atual] - [eNPS Período Anterior]</code></pre>
         <div class="pipeline-diagram">
           <div class="pipeline-step">
             <div class="pipeline-icon">📥</div>
-            <div class="pipeline-label">Sources</div>
+            <div class="pipeline-label"><span class="tip" data-tip="Raw data origins: HRIS (HR system), ATS (hiring), LMS (training), Engagement Survey, Payroll">Sources</span></div>
             <div class="pipeline-sublabel">HRIS, ATS, LMS, Engagement Survey, Payroll</div>
           </div>
           <div class="pipeline-arrow">→</div>
           <div class="pipeline-step">
             <div class="pipeline-icon">⚙️</div>
-            <div class="pipeline-label">ETL / ELT</div>
+            <div class="pipeline-label"><span class="tip" data-tip="Extract Transform Load (or Load then Transform) — the process of moving and reshaping data from source systems to the warehouse">ETL / ELT</span></div>
             <div class="pipeline-sublabel">Python, dbt, Power Query</div>
           </div>
           <div class="pipeline-arrow">→</div>
@@ -843,7 +861,7 @@ Variação eNPS = [eNPS Atual] - [eNPS Período Anterior]</code></pre>
           <div class="pipeline-step">
             <div class="pipeline-icon">💡</div>
             <div class="pipeline-label">Decision</div>
-            <div class="pipeline-sublabel">HRBP, Leadership, C-Level</div>
+            <div class="pipeline-sublabel"><span class="tip" data-tip="HR Business Partner — strategic HR partner embedded in business units">HRBP</span>, Leadership, C-Level</div>
           </div>
         </div>
 
@@ -896,7 +914,7 @@ ADDCOLUMNS(
             <div class="info-box">
               <strong>Power BI best practices for People Analytics:</strong>
               <ul style="margin-top:8px">
-                <li>Use RLS (Row-Level Security) so managers only see data for their own team</li>
+                <li>Use <span class="tip" data-tip="Row-Level Security: filters data in Power BI so each user sees only what they are authorized to view">RLS (Row-Level Security)</span> so managers only see data for their own team</li>
                 <li>Define a separate measures table (<em>_Measures</em>) to organize KPIs</li>
                 <li>Prefer <code>DIVIDE(numerator, denominator, 0)</code> over direct division — avoids division-by-zero errors</li>
                 <li>Document each measure using the <code>Description</code> field in the properties pane</li>
@@ -1190,6 +1208,8 @@ ORDER BY h.ano_mes;</code></pre>
       </section>
 
     </main><!-- /.main-content -->
+
+  </div><!-- /.app-wrapper -->
 
     <!-- ========== FOOTER ========== -->
     <footer style="background:#1a1a2e;color:#ccc;padding:40px 24px;text-align:center;margin-top:0">
