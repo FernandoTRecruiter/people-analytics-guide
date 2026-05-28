@@ -132,7 +132,16 @@
       .module-section{padding:32px 20px}
       .lang-bar{top:8px;right:8px}
     }
-  </style>
+    /* ── Tooltip ───────────────────────────────────── */
+    .tip{position:relative;cursor:help;border-bottom:1px dashed rgba(255,255,255,.4);display:inline}
+    .tip::after{content:attr(data-tip);position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#0d1f14;color:#e2e8f0;padding:7px 11px;border-radius:7px;font-size:.76rem;font-weight:400;line-height:1.4;white-space:normal;width:220px;text-align:center;opacity:0;pointer-events:none;transition:opacity .18s;z-index:3000;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+    .tip::before{content:'';position:absolute;bottom:105%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#0d1f14;opacity:0;transition:opacity .18s;z-index:3000}
+    .tip:hover::after,.tip:hover::before{opacity:1}
+    .main-content .tip{border-bottom-color:rgba(0,0,0,.3)}
+    /* ── Sidebar sources ─────────────────────────────── */
+    .nav-sources{padding:8px 24px 0;font-size:.72rem;color:#64748b;line-height:1.8}
+    .nav-sources a{color:#64748b;text-decoration:none;transition:color .15s}
+    .nav-sources a:hover{color:#4ade80}  </style>
 </head>
 <body>
   <div class="lang-bar">
@@ -162,7 +171,15 @@
       <a href="#kpi8"  class="nav-item">8 · Quality of Hire</a>
       <a href="#kpi9"  class="nav-item">9 · Voluntary Turnover</a>
       <a href="#kpi10" class="nav-item">10 · Time to Hire</a>
-    </nav>
+
+      <span class="nav-section">Fontes</span>
+      <div class="nav-sources">
+        <a href="https://www.shrm.org" target="_blank" rel="noopener">SHRM</a> &nbsp;·&nbsp;
+        <a href="https://www.aihr.com" target="_blank" rel="noopener">AIHR</a> &nbsp;·&nbsp;
+        <a href="https://business.linkedin.com/talent-solutions/global-talent-trends" target="_blank" rel="noopener">LinkedIn Talent Trends</a><br>
+        <a href="https://www.michaelpage.com.br" target="_blank" rel="noopener">Michael Page</a> &nbsp;·&nbsp;
+        <a href="https://www.abrhf.org.br" target="_blank" rel="noopener">ABRHF</a>
+      </div>    </nav>
     <main class="main-content">
       <section class="hero">
         <div class="hero-badge">PEOPLE ANALYTICS · GUIA PRÁTICO</div>
@@ -818,13 +835,13 @@ Variação eNPS = [eNPS Atual] - [eNPS Período Anterior]</code></pre>
         <div class="pipeline-diagram">
           <div class="pipeline-step">
             <div class="pipeline-icon">📥</div>
-            <div class="pipeline-label">Fontes</div>
+            <div class="pipeline-label"><span class="tip" data-tip="Origens dos dados brutos: HRIS (sistema de RH), ATS (recrutamento), LMS (treinamento), Pesquisa de Clima, Folha de Pagamento">Fontes</span></div>
             <div class="pipeline-sublabel">HRIS, ATS, LMS, Pesquisa de Clima, Folha</div>
           </div>
           <div class="pipeline-arrow">→</div>
           <div class="pipeline-step">
             <div class="pipeline-icon">⚙️</div>
-            <div class="pipeline-label">ETL / ELT</div>
+            <div class="pipeline-label"><span class="tip" data-tip="Extrair, Transformar e Carregar (ou Carregar e depois Transformar) — processo de mover e remodelar dados dos sistemas de origem para o warehouse">ETL / ELT</span></div>
             <div class="pipeline-sublabel">Python, dbt, Power Query</div>
           </div>
           <div class="pipeline-arrow">→</div>
@@ -843,7 +860,7 @@ Variação eNPS = [eNPS Atual] - [eNPS Período Anterior]</code></pre>
           <div class="pipeline-step">
             <div class="pipeline-icon">💡</div>
             <div class="pipeline-label">Decisão</div>
-            <div class="pipeline-sublabel">HRBP, Liderança, C-Level</div>
+            <div class="pipeline-sublabel"><span class="tip" data-tip="HR Business Partner — parceiro estratégico de RH embarcado nas unidades de negócio">HRBP</span>, Liderança, C-Level</div>
           </div>
         </div>
 
@@ -896,7 +913,7 @@ ADDCOLUMNS(
             <div class="info-box">
               <strong>Boas práticas Power BI para People Analytics:</strong>
               <ul style="margin-top:8px">
-                <li>Use RLS (Row-Level Security) para que gestores vejam apenas os dados da sua equipe</li>
+                <li>Use <span class="tip" data-tip="Row-Level Security: filtra dados no Power BI para que cada usuário veja apenas o que está autorizado a visualizar">RLS (Row-Level Security)</span> para que gestores vejam apenas os dados da sua equipe</li>
                 <li>Defina uma tabela de medidas separada (<em>_Medidas</em>) para organizar os KPIs</li>
                 <li>Prefira <code>DIVIDE(numerador, denominador, 0)</code> a divisão direta — evita erros de divisão por zero</li>
                 <li>Documente cada medida com <code>Description</code> no campo de propriedades</li>
@@ -1190,6 +1207,8 @@ ORDER BY h.ano_mes;</code></pre>
       </section>
 
     </main><!-- /.main-content -->
+
+  </div><!-- /.app-wrapper -->
 
     <!-- ========== FOOTER ========== -->
     <footer style="background:#1a1a2e;color:#ccc;padding:40px 24px;text-align:center;margin-top:0">
